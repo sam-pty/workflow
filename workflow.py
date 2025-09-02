@@ -6,8 +6,10 @@ import sys
 import subprocess
 from tqdm import tqdm
 from enum import Enum, auto
+import time
+import concurrent.futures
 
-NUM_NPUS = 4
+NUM_NPUS = 16
 
 class ParallelismType(Enum):
     RC = auto()
@@ -35,7 +37,7 @@ class NetworkBackendType(Enum):
     GARNET = auto()
 
 PARALLELISM_TYPE: ParallelismType = ParallelismType.RC
-COMMUNICATION_TYPE: ParallelType = ParallelType.DATA
+COMMUNICATION_TYPE: ParallelType = ParallelType.MODEL
 NETWORK_BACKEND_TYPE: NetworkBackendType = NetworkBackendType.ANALYTICAL
 
 class DeepFlowRunner:
@@ -44,14 +46,14 @@ class DeepFlowRunner:
         self.config_dir = os.path.join(rundir, "configs", "new-configs")
         self.output_dir = os.path.join(rundir, "output")
         self.llm_dir = os.path.join(self.output_dir, "LLM")
-        self.input_file = os.path.join(rundir, "scripts", "mat_dims_small.txt")
+        self.input_file = os.path.join(rundir, "scripts", "mat_dims.txt")
         self.num_npus = NUM_NPUS
         self.parallelism_type = PARALLELISM_TYPE
         self.kp1, self.kp2 = self._get_kp1_kp2()
 
     def prepare_output_directory(self):
         os.makedirs(self.llm_dir, exist_ok=True)
-        for root, dirs, files in os.walk(self.llm_dir):
+        for root, _, files in os.walk(self.llm_dir):
             for f in files:
                 os.remove(os.path.join(root, f))
 
@@ -59,8 +61,8 @@ class DeepFlowRunner:
         self.prepare_output_directory()
         with open(self.input_file, 'r') as f:
             lines = [line.strip().split() for line in f if len(line.strip().split()) >= 3]
-        
-        for idx, parts in enumerate(tqdm(lines, desc="Running DeepFlow", unit="run")):
+
+        def run_command(idx, parts):
             value1, value2, value3 = parts
             command = [
                 "python",
@@ -68,7 +70,7 @@ class DeepFlowRunner:
                 "--exp_config", os.path.join(self.config_dir, "A100.yaml"),
                 "--exp_dir", self.llm_dir,
                 "--debug", "False",
-                "--id", str(idx),  # assign unique ID
+                "--id", str(idx),
                 "--gemm", "True",
                 "--t", self.parallelism_type.name,
                 "--dp", "1",
@@ -79,7 +81,15 @@ class DeepFlowRunner:
                 "--n", value2,
                 "--k", value3
             ]
-            subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(command, stdout=subprocess.DEVNULL)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            list(tqdm(
+                executor.map(lambda args: run_command(*args), enumerate(lines)),
+                total=len(lines),
+                desc="Running DeepFlow (multithreaded)",
+                unit="run"
+            ))
 
     def _get_kp1_kp2(self) -> tuple[int, int]:
         if PARALLELISM_TYPE == ParallelismType.RC:
@@ -201,13 +211,13 @@ class DeepFlowParser:
         return LayerMetrics(
             layername="layer1",
             reserved=-1,
-            fwd_comp_time=round(fwd_comp_time, 6),
+            fwd_comp_time=round(fwd_comp_time / 10),
             fwd_comm_type=self._get_comm_type(CommunicationPhase.FORWARD),
             fwd_comm_size=round(fwd_comm_size),
-            grad_comp_time=round(grad_comp_time, 6),
+            grad_comp_time=round(grad_comp_time / 10),
             grad_comm_type=self._get_comm_type(CommunicationPhase.INPUT),
             grad_comm_size=round(grad_comm_size),
-            weight_comp_time=round(weight_comp_time, 6),
+            weight_comp_time=round(weight_comp_time / 10),
             weight_comm_type=self._get_comm_type(CommunicationPhase.WEIGHT),
             weight_comm_size=round(weight_comm_size),
             final_delay=10
@@ -319,6 +329,7 @@ class AstraSimRunner:
         log_to_file = False  # Set to False if you don't want to log to a file
         print(f"[ASTRA-sim] Running ASTRA-sim Example with {NETWORK_BACKEND_TYPE.name.capitalize()} Network Backend...\n")
         workload_path = os.path.join(self.example_dir, "workload", self.target_workload)
+        # workload_path = "/home/sampan/workflow/pytorch/Torch_model"
 
         # Timestamped filename
         timestamp    = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -347,7 +358,9 @@ class AstraSimRunner:
 
         cmd_args = [self.astra_sim_bin] + backend_args.get(NETWORK_BACKEND_TYPE, [])
 
-        print(f"[ASTRA-sim] Command: {' '.join(cmd_args)}\n")
+        # print(f"[ASTRA-sim] Command: {' '.join(cmd_args)}\n")
+
+        start_time = time.time()  # Start timing
 
         process = subprocess.Popen(
             cmd_args,
@@ -362,6 +375,11 @@ class AstraSimRunner:
 
         # Always print to terminal
         print(stdout_data, end="", flush=True)
+
+        # Print runtime
+        end_time = time.time()  # End timing
+        runtime = end_time - start_time
+        print(f"\n[ASTRA-sim] Runtime: {runtime:.2f} seconds\n")
 
         # Optionally write to file
         if log_to_file:
@@ -378,16 +396,16 @@ class AstraSimRunner:
     def run_all(self):
         # self.compile_astrasim()
         # self.install_chakra()                  #uncomment if you want to install
-        self.convert_text_to_chakra()
+        # self.convert_text_to_chakra()
         self.run_astrasim()
 
 
 if __name__ == "__main__":
-    runner = DeepFlowRunner()
-    runner.run_all()
+    # runner = DeepFlowRunner()
+    # runner.run_all()
 
-    parser = DeepFlowParser()
-    parser.parse_all()
+    # parser = DeepFlowParser()
+    # parser.parse_all()
 
     astra_runner = AstraSimRunner(project_dir="astra-sim")  # Adjust if your working directory differs
     astra_runner.run_all()
