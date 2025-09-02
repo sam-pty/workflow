@@ -1,0 +1,4 @@
+topology: [ Ring ] # FullyConnected, Switch, Ring, BinaryTree
+npus_count: [ 4 ]
+bandwidth: [ 32.0 ]  # GB/s
+latency: [ 50.0 ]  # ns
