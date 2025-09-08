@@ -10,9 +10,9 @@ LICENSE file in the root directory of this source tree.
 
 #include "astra-sim/common/Logging.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/DoubleBinaryTreeTopology.hh"
-#include "astra-sim/system/astraccl/native_collectives/logical_topology/RingTopology.hh"
-#include "astra-sim/system/astraccl/native_collectives/logical_topology/MeshTopology.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/HyperCubeTopology.hh"
+#include "astra-sim/system/astraccl/native_collectives/logical_topology/MeshTopology.hh"
+#include "astra-sim/system/astraccl/native_collectives/logical_topology/RingTopology.hh"
 
 using namespace std;
 using namespace AstraSim;
@@ -69,8 +69,7 @@ GeneralComplexTopology::GeneralComplexTopology(
                     offset);
                 dimension_topology.push_back(DBT);
             }
-        } else if (collective_impl[dim]->type ==
-                   CollectiveImplType::Mesh) {
+        } else if (collective_impl[dim]->type == CollectiveImplType::Mesh) {
             MeshTopology* mesh = new MeshTopology(
                 MeshTopology::Dimension::NA, id, dimension_size[dim],
                 (id % (offset * dimension_size[dim])) / offset, offset);

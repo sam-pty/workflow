@@ -13,11 +13,11 @@ LICENSE file in the root directory of this source tree.
 using namespace AstraSim;
 
 HyperCube::HyperCube(ComType type,
-           int id,
-           HyperCubeTopology* hypercube_topology,
-           uint64_t data_size,
-           HyperCubeTopology::Direction direction,
-           InjectionPolicy injection_policy)
+                     int id,
+                     HyperCubeTopology* hypercube_topology,
+                     uint64_t data_size,
+                     HyperCubeTopology::Direction direction,
+                     InjectionPolicy injection_policy)
     : Algorithm() {
     this->comType = type;
     this->id = id;
@@ -36,7 +36,8 @@ HyperCube::HyperCube(ComType type,
     this->non_zero_latency_packets = 0;
     this->toggle = false;
     this->name = Name::HyperCube;
-    if (hypercube_topology->get_dimension() == HyperCubeTopology::Dimension::Local) {
+    if (hypercube_topology->get_dimension() ==
+        HyperCubeTopology::Dimension::Local) {
         transmition = MemBus::Transmition::Fast;
     } else {
         transmition = MemBus::Transmition::Usual;
@@ -46,7 +47,8 @@ HyperCube::HyperCube(ComType type,
         stream_count = 2 * std::ceil(std::log(nodes_in_hypercube));
         break;
     case ComType::All_to_All:
-        this->stream_count = ((nodes_in_hypercube - 1) * nodes_in_hypercube) / 2;
+        this->stream_count =
+            ((nodes_in_hypercube - 1) * nodes_in_hypercube) / 2;
         switch (injection_policy) {
         case InjectionPolicy::Aggressive:
             this->parallel_reduce = nodes_in_hypercube - 1;

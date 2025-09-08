@@ -12,7 +12,9 @@ LICENSE file in the root directory of this source tree.
 using namespace std;
 using namespace AstraSim;
 
-HyperCubeTopology::HyperCubeTopology(Dimension dimension, int id, std::vector<int> NPUs)
+HyperCubeTopology::HyperCubeTopology(Dimension dimension,
+                                     int id,
+                                     std::vector<int> NPUs)
     : BasicLogicalTopology(BasicLogicalTopology::BasicTopology::HyperCube) {
     name = "local";
     if (dimension == Dimension::Vertical) {
@@ -34,7 +36,8 @@ HyperCubeTopology::HyperCubeTopology(Dimension dimension, int id, std::vector<in
     }
 
     LoggerFactory::get_logger("system::topology::HyperCubeTopology")
-        ->info("custom hypercube, id: {}, dimension: {} total nodes in hypercube: {} "
+        ->info("custom hypercube, id: {}, dimension: {} total nodes in "
+               "hypercube: {} "
                "index in hypercube: {} total nodes in hypercube {}",
                id, name, total_nodes_in_hypercube, index_in_hypercube,
                total_nodes_in_hypercube);
@@ -42,10 +45,10 @@ HyperCubeTopology::HyperCubeTopology(Dimension dimension, int id, std::vector<in
     assert(index_in_hypercube >= 0);
 }
 HyperCubeTopology::HyperCubeTopology(Dimension dimension,
-                           int id,
-                           int total_nodes_in_hypercube,
-                           int index_in_hypercube,
-                           int offset)
+                                     int id,
+                                     int total_nodes_in_hypercube,
+                                     int index_in_hypercube,
+                                     int offset)
     : BasicLogicalTopology(BasicLogicalTopology::BasicTopology::HyperCube) {
     name = "local";
     if (dimension == Dimension::Vertical) {
@@ -55,10 +58,12 @@ HyperCubeTopology::HyperCubeTopology(Dimension dimension,
     }
     if (id == 0) {
         LoggerFactory::get_logger("system::topology::HyperCubeTopology")
-            ->info("hypercube of node 0, id: {} dimension: {} total nodes in hypercube: "
-                   "{} index in hypercube: {} offset: {} total nodes in hypercube: {}",
-                   id, name, total_nodes_in_hypercube, index_in_hypercube, offset,
-                   total_nodes_in_hypercube);
+            ->info("hypercube of node 0, id: {} dimension: {} total nodes in "
+                   "hypercube: "
+                   "{} index in hypercube: {} offset: {} total nodes in "
+                   "hypercube: {}",
+                   id, name, total_nodes_in_hypercube, index_in_hypercube,
+                   offset, total_nodes_in_hypercube);
     }
     this->id = id;
     this->total_nodes_in_hypercube = total_nodes_in_hypercube;
@@ -70,14 +75,14 @@ HyperCubeTopology::HyperCubeTopology(Dimension dimension,
     index_to_id[index_in_hypercube] = id;
     int tmp = id;
     for (int i = 0; i < total_nodes_in_hypercube - 1; i++) {
-        tmp = get_receiver_homogeneous(tmp, HyperCubeTopology::Direction::Clockwise,
-                                       offset);
+        tmp = get_receiver_homogeneous(
+            tmp, HyperCubeTopology::Direction::Clockwise, offset);
     }
 }
 
 int HyperCubeTopology::get_receiver_homogeneous(int node_id,
-                                           Direction direction,
-                                           int offset) {
+                                                Direction direction,
+                                                int offset) {
     assert(id_to_index.find(node_id) != id_to_index.end());
     int index = id_to_index[node_id];
     if (direction == HyperCubeTopology::Direction::Clockwise) {
@@ -90,10 +95,11 @@ int HyperCubeTopology::get_receiver_homogeneous(int node_id,
         }
         if (receiver < 0) {
             LoggerFactory::get_logger("system::topology::HyperCubeTopology")
-                ->critical("at dim: {} at id: {} dimension: {} index: {}, node "
-                           "id: {}, offset: {}, index_in_hypercube {} receiver {}",
-                           name, id, name, index, node_id, offset,
-                           index_in_hypercube, receiver);
+                ->critical(
+                    "at dim: {} at id: {} dimension: {} index: {}, node "
+                    "id: {}, offset: {}, index_in_hypercube {} receiver {}",
+                    name, id, name, index, node_id, offset, index_in_hypercube,
+                    receiver);
         }
         assert(receiver >= 0);
         id_to_index[receiver] = index;
@@ -109,10 +115,11 @@ int HyperCubeTopology::get_receiver_homogeneous(int node_id,
         }
         if (receiver < 0) {
             LoggerFactory::get_logger("system::topology::HyperCubeTopology")
-                ->critical("at dim: {} at id: {} dimension: {} index: {}, node "
-                           "id: {}, offset: {}, index_in_hypercube {} receiver {}",
-                           name, id, name, index, node_id, offset,
-                           index_in_hypercube, receiver);
+                ->critical(
+                    "at dim: {} at id: {} dimension: {} index: {}, node "
+                    "id: {}, offset: {}, index_in_hypercube {} receiver {}",
+                    name, id, name, index, node_id, offset, index_in_hypercube,
+                    receiver);
         }
         assert(receiver >= 0);
         id_to_index[receiver] = index;

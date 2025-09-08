@@ -16,11 +16,11 @@ namespace AstraSim {
 class HyperCube : public Algorithm {
   public:
     HyperCube(ComType type,
-         int id,
-         HyperCubeTopology* hypercube_topology,
-         uint64_t data_size,
-         HyperCubeTopology::Direction direction,
-         InjectionPolicy injection_policy);
+              int id,
+              HyperCubeTopology* hypercube_topology,
+              uint64_t data_size,
+              HyperCubeTopology::Direction direction,
+              InjectionPolicy injection_policy);
     virtual void run(EventType event, CallData* data);
     void process_stream_count();
     void release_packets();

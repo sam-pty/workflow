@@ -34,7 +34,7 @@ Ring::Ring(ComType type,
     this->non_zero_latency_packets = 0;
     this->toggle = false;
     this->name = Name::Ring;
-    this->m_bidirectional = true; // place to change bidirectional
+    this->m_bidirectional = true;  // place to change bidirectional
     if (ring_topology->get_dimension() == RingTopology::Dimension::Local) {
         transmition = MemBus::Transmition::Fast;
     } else {
@@ -70,13 +70,10 @@ Ring::Ring(ComType type,
     remained_packets_per_max_count = 1;
     switch (type) {
     case ComType::All_Reduce:
-        if (m_bidirectional)
-        {
+        if (m_bidirectional) {
             this->final_data_size = data_size / 2;
             this->msg_size = (data_size / nodes_in_ring) / 2;
-        }
-        else
-        {
+        } else {
             this->final_data_size = data_size;
             this->msg_size = data_size / nodes_in_ring;
         }

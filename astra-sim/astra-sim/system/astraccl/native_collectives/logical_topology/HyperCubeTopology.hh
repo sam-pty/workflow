@@ -21,10 +21,10 @@ class HyperCubeTopology : public BasicLogicalTopology {
     enum class Dimension { Local, Vertical, Horizontal, NA };
     int get_num_of_nodes_in_dimension(int dimension) override;
     HyperCubeTopology(Dimension dimension,
-                 int id,
-                 int total_nodes_in_hypercube,
-                 int index_in_hypercube,
-                 int offset);
+                      int id,
+                      int total_nodes_in_hypercube,
+                      int index_in_hypercube,
+                      int offset);
     HyperCubeTopology(Dimension dimension, int id, std::vector<int> NPUs);
     virtual int get_receiver(int node_id, Direction direction);
     virtual int get_sender(int node_id, Direction direction);

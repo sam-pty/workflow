@@ -6,11 +6,11 @@ LICENSE file in the root directory of this source tree.
 #include "congestion_unaware/Helper.h"
 #include "congestion_unaware/BasicTopology.h"
 #include "congestion_unaware/FullyConnected.h"
+#include "congestion_unaware/HyperCube.h"
+#include "congestion_unaware/Mesh.h"
 #include "congestion_unaware/MultiDimTopology.h"
 #include "congestion_unaware/Ring.h"
 #include "congestion_unaware/Switch.h"
-#include "congestion_unaware/Mesh.h"
-#include "congestion_unaware/HyperCube.h"
 #include <cstdlib>
 #include <iostream>
 

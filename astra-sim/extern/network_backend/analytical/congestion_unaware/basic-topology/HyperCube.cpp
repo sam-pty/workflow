@@ -4,17 +4,20 @@ LICENSE file in the root directory of this source tree.
 *******************************************************************************/
 
 #include "congestion_unaware/HyperCube.h"
-#include <cassert>
 #include <bitset>
+#include <cassert>
 
 using namespace NetworkAnalytical;
 using namespace NetworkAnalyticalCongestionUnaware;
 
-HyperCube::HyperCube(const int npus_count, const Bandwidth bandwidth, const Latency latency, const bool bidirectional) noexcept
+HyperCube::HyperCube(const int npus_count,
+                     const Bandwidth bandwidth,
+                     const Latency latency,
+                     const bool bidirectional) noexcept
     : bidirectional(bidirectional),
       BasicTopology(npus_count, bandwidth, latency) {
     assert(npus_count > 0);
-    assert((npus_count & (npus_count - 1)) == 0); // must be power of 2
+    assert((npus_count & (npus_count - 1)) == 0);  // must be power of 2
     assert(bandwidth > 0);
     assert(latency >= 0);
 
