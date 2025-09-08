@@ -44,7 +44,7 @@ Mesh::Mesh(ComType type,
     }
     switch (type) {
     case ComType::All_Reduce:
-        stream_count = 2 * (nodes_in_mesh - 1); // number of rounds
+        stream_count = 2 * (nodes_in_mesh - 1);  // number of rounds
         break;
     case ComType::All_to_All:
         this->stream_count = ((nodes_in_mesh - 1) * nodes_in_mesh) / 2;
@@ -61,7 +61,7 @@ Mesh::Mesh(ComType type,
         }
         break;
     default:
-        stream_count = nodes_in_mesh - 1; // all gather, = nodes_in_mesh
+        stream_count = nodes_in_mesh - 1;  // all gather, = nodes_in_mesh
     }
     if (type == ComType::All_to_All || type == ComType::All_Gather) {
         max_count = 0;
@@ -90,9 +90,9 @@ Mesh::Mesh(ComType type,
     default:;
     }
 
-    if (!m_bidirectional)
-    {
-        LoggerFactory::get_logger("collectives/mesh")->critical("Mesh should always be bidirectional!");
+    if (!m_bidirectional) {
+        LoggerFactory::get_logger("collectives/mesh")
+            ->critical("Mesh should always be bidirectional!");
         std::exit(1);
     }
 }
