@@ -1,3 +1,5 @@
 init.sh
 debug.log
 .vscode/
+err.log
+log.log

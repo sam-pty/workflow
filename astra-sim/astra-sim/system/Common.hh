@@ -64,6 +64,8 @@ enum class CollectiveImplType {
     HalvingDoubling,
     OneHalvingDoubling,
     ChakraImpl,
+    Mesh,
+    HyperCube,
 };
 
 enum class CollectiveBarrier { Blocking = 0, Non_Blocking };

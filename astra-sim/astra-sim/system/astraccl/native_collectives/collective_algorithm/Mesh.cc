@@ -3,28 +3,30 @@ This source code is licensed under the MIT license found in the
 LICENSE file in the root directory of this source tree.
 *******************************************************************************/
 
-#include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Ring.hh"
+#include "astra-sim/common/Logging.hh"
+
+#include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Mesh.hh"
 
 #include "astra-sim/system/PacketBundle.hh"
 #include "astra-sim/system/RecvPacketEventHandlerData.hh"
 
 using namespace AstraSim;
 
-Ring::Ring(ComType type,
+Mesh::Mesh(ComType type,
            int id,
-           RingTopology* ring_topology,
+           MeshTopology* mesh_topology,
            uint64_t data_size,
-           RingTopology::Direction direction,
+           MeshTopology::Direction direction,
            InjectionPolicy injection_policy)
     : Algorithm() {
     this->comType = type;
     this->id = id;
-    this->logical_topo = ring_topology;
+    this->logical_topo = mesh_topology;
     this->data_size = data_size;
     this->direction = direction;
-    this->nodes_in_ring = ring_topology->get_nodes_in_ring();
-    this->curr_receiver = ring_topology->get_receiver(id, direction);
-    this->curr_sender = ring_topology->get_sender(id, direction);
+    this->nodes_in_mesh = mesh_topology->get_nodes_in_mesh();
+    this->curr_receiver = mesh_topology->get_receiver(id, direction);
+    this->curr_sender = mesh_topology->get_sender(id, direction);
     this->parallel_reduce = 1;
     this->injection_policy = injection_policy;
     this->total_packets_sent = 0;
@@ -33,22 +35,22 @@ Ring::Ring(ComType type,
     this->zero_latency_packets = 0;
     this->non_zero_latency_packets = 0;
     this->toggle = false;
-    this->name = Name::Ring;
-    this->m_bidirectional = true; // place to change bidirectional
-    if (ring_topology->get_dimension() == RingTopology::Dimension::Local) {
+    this->name = Name::Mesh;
+    this->m_bidirectional = true;
+    if (mesh_topology->get_dimension() == MeshTopology::Dimension::Local) {
         transmition = MemBus::Transmition::Fast;
     } else {
         transmition = MemBus::Transmition::Usual;
     }
     switch (type) {
     case ComType::All_Reduce:
-        stream_count = 2 * (nodes_in_ring - 1); // number of rounds
+        stream_count = 2 * (nodes_in_mesh - 1); // number of rounds
         break;
     case ComType::All_to_All:
-        this->stream_count = ((nodes_in_ring - 1) * nodes_in_ring) / 2;
+        this->stream_count = ((nodes_in_mesh - 1) * nodes_in_mesh) / 2;
         switch (injection_policy) {
         case InjectionPolicy::Aggressive:
-            this->parallel_reduce = nodes_in_ring - 1;
+            this->parallel_reduce = nodes_in_mesh - 1;
             break;
         case InjectionPolicy::Normal:
             this->parallel_reduce = 1;
@@ -59,49 +61,47 @@ Ring::Ring(ComType type,
         }
         break;
     default:
-        stream_count = nodes_in_ring - 1; // all gather, = nodes_in_ring
+        stream_count = nodes_in_mesh - 1; // all gather, = nodes_in_mesh
     }
     if (type == ComType::All_to_All || type == ComType::All_Gather) {
         max_count = 0;
     } else {
-        max_count = nodes_in_ring - 1;
+        max_count = nodes_in_mesh - 1;
     }
     remained_packets_per_message = 1;
     remained_packets_per_max_count = 1;
     switch (type) {
     case ComType::All_Reduce:
-        if (m_bidirectional)
-        {
-            this->final_data_size = data_size / 2;
-            this->msg_size = (data_size / nodes_in_ring) / 2;
-        }
-        else
-        {
-            this->final_data_size = data_size;
-            this->msg_size = data_size / nodes_in_ring;
-        }
+        this->final_data_size = data_size;
+        this->msg_size = data_size / nodes_in_mesh;
         break;
     case ComType::All_Gather:
-        this->final_data_size = data_size * nodes_in_ring;
+        this->final_data_size = data_size * nodes_in_mesh;
         this->msg_size = data_size;
         break;
     case ComType::Reduce_Scatter:
-        this->final_data_size = data_size / nodes_in_ring;
-        this->msg_size = data_size / nodes_in_ring;
+        this->final_data_size = data_size / nodes_in_mesh;
+        this->msg_size = data_size / nodes_in_mesh;
         break;
     case ComType::All_to_All:
         this->final_data_size = data_size;
-        this->msg_size = data_size / nodes_in_ring;
+        this->msg_size = data_size / nodes_in_mesh;
         break;
     default:;
     }
+
+    if (!m_bidirectional)
+    {
+        LoggerFactory::get_logger("collectives/mesh")->critical("Mesh should always be bidirectional!");
+        std::exit(1);
+    }
 }
 
-int Ring::get_non_zero_latency_packets() {
-    return (nodes_in_ring - 1) * parallel_reduce * 1;
+int Mesh::get_non_zero_latency_packets() {
+    return (nodes_in_mesh - 1) * parallel_reduce * 1;
 }
 
-void Ring::run(EventType event, CallData* data) {
+void Mesh::run(EventType event, CallData* data) {
     if (event == EventType::General) {
         free_packets += 1;
         ready();
@@ -116,7 +116,7 @@ void Ring::run(EventType event, CallData* data) {
     }
 }
 
-void Ring::release_packets() {
+void Mesh::release_packets() {
     for (auto packet : locked_packets) {
         packet->set_notifier(this);
     }
@@ -132,7 +132,7 @@ void Ring::release_packets() {
     locked_packets.clear();
 }
 
-void Ring::process_stream_count() {
+void Mesh::process_stream_count() {
     if (remained_packets_per_message > 0) {
         remained_packets_per_message--;
     }
@@ -150,7 +150,7 @@ void Ring::process_stream_count() {
     }
 }
 
-void Ring::process_max_count() {
+void Mesh::process_max_count() {
     if (remained_packets_per_max_count > 0) {
         remained_packets_per_max_count--;
     }
@@ -161,14 +161,14 @@ void Ring::process_max_count() {
     }
 }
 
-void Ring::reduce() {
+void Mesh::reduce() {
     process_stream_count();
     packets.pop_front();
     free_packets--;
     total_packets_sent++;
 }
 
-bool Ring::iteratable() {
+bool Mesh::iteratable() {
     if (stream_count == 0 &&
         free_packets == (parallel_reduce * 1)) {  // && not_delivered==0
         exit();
@@ -177,11 +177,11 @@ bool Ring::iteratable() {
     return true;
 }
 
-void Ring::insert_packet(Callable* sender) {
+void Mesh::insert_packet(Callable* sender) {
     if (zero_latency_packets == 0 && non_zero_latency_packets == 0) {
         zero_latency_packets = parallel_reduce * 1;
         non_zero_latency_packets =
-            get_non_zero_latency_packets();  //(nodes_in_ring-1)*parallel_reduce*1;
+            get_non_zero_latency_packets();  //(nodes_in_mesh-1)*parallel_reduce*1;
         toggle = !toggle;
     }
     if (zero_latency_packets > 0) {
@@ -221,7 +221,7 @@ void Ring::insert_packet(Callable* sender) {
     Sys::sys_panic("should not inject nothing!");
 }
 
-bool Ring::ready() {
+bool Mesh::ready() {
     if (stream->state == StreamState::Created ||
         stream->state == StreamState::Ready) {
         stream->changeState(StreamState::Executing);
@@ -255,7 +255,7 @@ bool Ring::ready() {
     return true;
 }
 
-void Ring::exit() {
+void Mesh::exit() {
     if (packets.size() != 0) {
         packets.clear();
     }

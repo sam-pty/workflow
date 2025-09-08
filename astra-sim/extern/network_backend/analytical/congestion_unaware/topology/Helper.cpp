@@ -9,6 +9,8 @@ LICENSE file in the root directory of this source tree.
 #include "congestion_unaware/MultiDimTopology.h"
 #include "congestion_unaware/Ring.h"
 #include "congestion_unaware/Switch.h"
+#include "congestion_unaware/Mesh.h"
+#include "congestion_unaware/HyperCube.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -40,6 +42,10 @@ std::shared_ptr<Topology> NetworkAnalyticalCongestionUnaware::construct_topology
             return std::make_shared<Switch>(npus_count, bandwidth, latency);
         case TopologyBuildingBlock::FullyConnected:
             return std::make_shared<FullyConnected>(npus_count, bandwidth, latency);
+        case TopologyBuildingBlock::Mesh:
+            return std::make_shared<Mesh>(npus_count, bandwidth, latency);
+        case TopologyBuildingBlock::HyperCube:
+            return std::make_shared<HyperCube>(npus_count, bandwidth, latency);
         default:
             // shouldn't reach here
             std::cerr << "[Error] (network/analytical/congestion_unaware)" << "Not supported topology" << std::endl;

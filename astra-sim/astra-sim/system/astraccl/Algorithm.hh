@@ -15,7 +15,7 @@ namespace AstraSim {
 
 class Algorithm : public Callable {
   public:
-    enum class Name { Ring = 0, DoubleBinaryTree, AllToAll, HalvingDoubling };
+    enum class Name { Ring = 0, DoubleBinaryTree, AllToAll, HalvingDoubling, Mesh, HyperCube };
 
     Algorithm();
     virtual ~Algorithm() = default;
