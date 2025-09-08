@@ -114,6 +114,10 @@ TopologyBuildingBlock NetworkParser::parse_topology_name(const std::string& topo
         return TopologyBuildingBlock::Mesh;
     }
 
+    if (topology_name == "HyperCube") {
+        return TopologyBuildingBlock::HyperCube;
+    }
+
     // shouldn't reach here
     std::cerr << "[Error] (network/analytical) " << "Topology name " << topology_name << " not supported" << std::endl;
     std::exit(-1);

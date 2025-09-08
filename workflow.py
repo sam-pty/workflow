@@ -9,7 +9,7 @@ from enum import Enum, auto
 import time
 import concurrent.futures
 
-NUM_NPUS = 16
+NUM_NPUS = 4
 
 class ParallelismType(Enum):
     RC = auto()
@@ -358,7 +358,7 @@ class AstraSimRunner:
 
         cmd_args = [self.astra_sim_bin] + backend_args.get(NETWORK_BACKEND_TYPE, [])
 
-        # print(f"[ASTRA-sim] Command: {' '.join(cmd_args)}\n")
+        print(f"[ASTRA-sim] Command: {' '.join(cmd_args)}\n")
 
         start_time = time.time()  # Start timing
 
@@ -394,7 +394,7 @@ class AstraSimRunner:
             print(f"[ASTRA-sim] Exited with code {process.returncode} — check for errors in the log.")
 
     def run_all(self):
-        # self.compile_astrasim()
+        self.compile_astrasim()
         # self.install_chakra()                  #uncomment if you want to install
         # self.convert_text_to_chakra()
         self.run_astrasim()

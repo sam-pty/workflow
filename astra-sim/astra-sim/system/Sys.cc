@@ -27,6 +27,8 @@ LICENSE file in the root directory of this source tree.
 #include "astra-sim/system/astraccl/native_collectives/collective_algorithm/DoubleBinaryTreeAllReduce.hh"
 #include "astra-sim/system/astraccl/native_collectives/collective_algorithm/HalvingDoubling.hh"
 #include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Ring.hh"
+#include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Mesh.hh"
+#include "astra-sim/system/astraccl/native_collectives/collective_algorithm/HyperCube.hh"
 #include "astra-sim/system/scheduling/OfflineGreedy.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/BasicLogicalTopology.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/GeneralComplexTopology.hh"
@@ -504,6 +506,10 @@ CollectiveImpl* Sys::generate_collective_impl_from_input(
     string collective_impl_str) {
     if (collective_impl_str == "ring") {
         return new CollectiveImpl(CollectiveImplType::Ring);
+    } else if (collective_impl_str == "mesh") {
+        return new CollectiveImpl(CollectiveImplType::Mesh);
+    } else if (collective_impl_str == "hypercube") {
+        return new CollectiveImpl(CollectiveImplType::HyperCube);
     } else if (collective_impl_str == "oneRing") {
         return new CollectiveImpl(CollectiveImplType::OneRing);
     } else if (collective_impl_str == "doubleBinaryTree") {
@@ -1048,6 +1054,18 @@ CollectivePhase Sys::generate_collective_phase(
                            new Ring(collective_type, id,
                                     (RingTopology*)topology, data_size,
                                     direction, injection_policy));
+        return vn;
+    } else if (collective_impl->type == CollectiveImplType::Mesh) {
+        CollectivePhase vn(this, queue_id,
+                           new Mesh(collective_type, id,
+                                    (MeshTopology*)topology, data_size,
+                                    static_cast<MeshTopology::Direction>(direction), injection_policy));
+        return vn;
+    } else if (collective_impl->type == CollectiveImplType::HyperCube) {
+        CollectivePhase vn(this, queue_id,
+                           new HyperCube(collective_type, id,
+                                    (HyperCubeTopology*)topology, data_size,
+                                    static_cast<HyperCubeTopology::Direction>(direction), injection_policy));
         return vn;
     } else if (collective_impl->type == CollectiveImplType::Direct ||
                collective_impl->type == CollectiveImplType::OneDirect) {

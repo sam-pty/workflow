@@ -3,23 +3,23 @@ This source code is licensed under the MIT license found in the
 LICENSE file in the root directory of this source tree.
 *******************************************************************************/
 
-#ifndef __RING_HH__
-#define __RING_HH__
+#ifndef __HYPERCUBE_HH__
+#define __HYPERCUBE_HH__
 
 #include "astra-sim/system/MemBus.hh"
 #include "astra-sim/system/MyPacket.hh"
 #include "astra-sim/system/astraccl/Algorithm.hh"
-#include "astra-sim/system/astraccl/native_collectives/logical_topology/RingTopology.hh"
+#include "astra-sim/system/astraccl/native_collectives/logical_topology/HyperCubeTopology.hh"
 
 namespace AstraSim {
 
-class Ring : public Algorithm {
+class HyperCube : public Algorithm {
   public:
-    Ring(ComType type,
+    HyperCube(ComType type,
          int id,
-         RingTopology* ring_topology,
+         HyperCubeTopology* hypercube_topology,
          uint64_t data_size,
-         RingTopology::Direction direction,
+         HyperCubeTopology::Direction direction,
          InjectionPolicy injection_policy);
     virtual void run(EventType event, CallData* data);
     void process_stream_count();
@@ -32,15 +32,15 @@ class Ring : public Algorithm {
     bool ready();
     void exit();
 
-    RingTopology::Direction dimension;
-    RingTopology::Direction direction;
+    HyperCubeTopology::Direction dimension;
+    HyperCubeTopology::Direction direction;
     MemBus::Transmition transmition;
     int zero_latency_packets;
     int non_zero_latency_packets;
     int id;
     int curr_receiver;
     int curr_sender;
-    int nodes_in_ring;
+    int nodes_in_hypercube;
     int stream_count;
     int max_count;
     int remained_packets_per_max_count;
@@ -57,9 +57,8 @@ class Ring : public Algorithm {
     bool processed;
     bool send_back;
     bool NPU_to_MA;
-    bool m_bidirectional;
 };
 
 }  // namespace AstraSim
 
-#endif /* __RING_HH__ */
+#endif /* __HYPERCUBE_HH__ */
