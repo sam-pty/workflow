@@ -44,6 +44,16 @@ class Switch final : public BasicTopology {
      */
     [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
 
+    /**
+     * Get connection policies
+     * Each connection policy is represented as a pair of (src, dest) device ids.
+     * For a 4-node topology, the connection policies are:
+     * - if bidirectional: (0, 4), (1, 4), (2, 4), (3, 4), (4, 0), (4, 1), (4, 2), (4, 3)
+     *
+     * @return list of connection policies
+     */
+    [[nodiscard]] std::vector<ConnectionPolicy> get_connection_policies() const noexcept override;
+
   private:
     /// node_id of the switch node
     DeviceId switch_id;

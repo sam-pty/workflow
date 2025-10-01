@@ -6,6 +6,7 @@ LICENSE file in the root directory of this source tree.
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 namespace NetworkAnalytical {
 
@@ -40,6 +41,18 @@ enum class TopologyBuildingBlock {
     DoubleBinaryTree,
     Mesh,
     HyperCube
+};
+
+/// Multi-dimensional address of a device.
+/// Each NPU ID can be broken down into multiple dimensions.
+/// for example, if the topology size is [2, 8, 4] and the NPU ID is 31,
+/// then the NPU ID can be broken down into [1, 7, 1].
+using MultiDimAddress = std::vector<DeviceId>;
+
+/// Connection policy between two devices, (src, dst) means a link from src to dst
+struct ConnectionPolicy {
+    DeviceId src;
+    DeviceId dst;
 };
 
 }  // namespace NetworkAnalytical

@@ -58,7 +58,7 @@ void MultiDimTopology::append_dimension(std::unique_ptr<BasicTopology> topology)
     npus_count_per_dim.push_back(topology_size);
 }
 
-MultiDimTopology::MultiDimAddress MultiDimTopology::translate_address(const DeviceId npu_id) const noexcept {
+MultiDimAddress MultiDimTopology::translate_address(const DeviceId npu_id) const noexcept {
     // If units-count if [2, 8, 4], and the given id is 47, then the id should be
     // 47 // 16 = 2, leftover = 47 % 16 = 15
     // 15 // 2 = 7, leftover = 15 % 2 = 1

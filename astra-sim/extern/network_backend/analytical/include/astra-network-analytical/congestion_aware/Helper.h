@@ -21,4 +21,14 @@ namespace NetworkAnalyticalCongestionAware {
  */
 [[nodiscard]] std::shared_ptr<Topology> construct_topology(const NetworkParser& network_parser) noexcept;
 
+[[nodiscard]] std::vector<std::pair<MultiDimAddress, MultiDimAddress>> generateAddressPairs(
+    const MultiDimAddress& upper, const ConnectionPolicy& policy, int dim) noexcept;
+
+void generateFreeComb(const MultiDimAddress& upper,
+                      int dim,
+                      const ConnectionPolicy& policy,
+                      std::vector<int>& current,
+                      int index,
+                      std::vector<std::pair<MultiDimAddress, MultiDimAddress>>& result) noexcept;
+
 }  // namespace NetworkAnalyticalCongestionAware

@@ -39,6 +39,16 @@ class FullyConnected final : public BasicTopology {
      * Implementation of route function in Topology.
      */
     [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
+
+    /**
+     * Get connection policies
+     * Each connection policy is represented as a pair of (src, dest) device ids.
+     * For a 4-node topology, the connection policies are:
+     * - (0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,3), (3,0), (3,1), (3,2)
+     *
+     * @return list of connection policies
+     */
+    [[nodiscard]] std::vector<ConnectionPolicy> get_connection_policies() const noexcept override;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware
