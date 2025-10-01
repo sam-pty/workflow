@@ -76,6 +76,12 @@ std::shared_ptr<Topology> NetworkAnalyticalCongestionUnaware::construct_topology
         case TopologyBuildingBlock::FullyConnected:
             dim_topology = std::make_unique<FullyConnected>(npus_count, bandwidth, latency);
             break;
+        case TopologyBuildingBlock::Mesh:
+            dim_topology = std::make_unique<Mesh>(npus_count, bandwidth, latency);
+            break;
+        case TopologyBuildingBlock::HyperCube:
+            dim_topology = std::make_unique<HyperCube>(npus_count, bandwidth, latency);
+            break;
         default:
             // shouldn't reach here
             std::cerr << "[Error] (network/analytical/congestion_unaware)" << "Not supported basic-topology"

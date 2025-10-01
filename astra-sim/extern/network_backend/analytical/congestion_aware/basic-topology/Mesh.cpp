@@ -15,6 +15,9 @@ Mesh::Mesh(const int npus_count, const Bandwidth bandwidth, const Latency latenc
     assert(bandwidth > 0);
     assert(latency >= 0);
 
+    // set topology type
+    this->basic_topology_type = TopologyBuildingBlock::Mesh;
+
     // connect npus in a mesh
     for (auto i = 0; i < npus_count - 1; i++) {
         connect(i, i + 1, bandwidth, latency, true);

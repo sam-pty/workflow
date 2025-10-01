@@ -40,3 +40,17 @@ Route FullyConnected::route(const DeviceId src, const DeviceId dest) const noexc
 
     return route;
 }
+
+std::vector<ConnectionPolicy> FullyConnected::get_connection_policies() const noexcept {
+    std::vector<ConnectionPolicy> policies;
+
+    for (auto src = 0; src < npus_count; src++) {
+        for (auto dest = 0; dest < npus_count; dest++) {
+            if (src != dest) {
+                policies.emplace_back(ConnectionPolicy{src, dest});
+            }
+        }
+    }
+
+    return policies;
+}

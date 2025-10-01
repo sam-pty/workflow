@@ -16,6 +16,9 @@ Switch::Switch(const int npus_count, const Bandwidth bandwidth, const Latency la
     assert(bandwidth > 0);
     assert(latency >= 0);
 
+    // set topology type
+    basic_topology_type = TopologyBuildingBlock::Switch;
+
     // set switch id
     switch_id = npus_count;
 
@@ -38,4 +41,15 @@ Route Switch::route(DeviceId src, DeviceId dest) const noexcept {
     route.push_back(devices[dest]);
 
     return route;
+}
+
+std::vector<ConnectionPolicy> Switch::get_connection_policies() const noexcept {
+    std::vector<ConnectionPolicy> policies;
+
+    for (auto i = 0; i < npus_count; i++) {
+        policies.emplace_back(ConnectionPolicy{i, switch_id});
+        policies.emplace_back(ConnectionPolicy{switch_id, i});
+    }
+
+    return policies;
 }

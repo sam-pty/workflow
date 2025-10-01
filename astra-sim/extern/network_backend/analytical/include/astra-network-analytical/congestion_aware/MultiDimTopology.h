@@ -6,13 +6,13 @@ LICENSE file in the root directory of this source tree.
 #pragma once
 
 #include "common/Type.h"
-#include "congestion_unaware/BasicTopology.h"
-#include "congestion_unaware/Topology.h"
+#include "congestion_aware/BasicTopology.h"
+#include "congestion_aware/Topology.h"
 #include <memory>
 
 using namespace NetworkAnalytical;
 
-namespace NetworkAnalyticalCongestionUnaware {
+namespace NetworkAnalyticalCongestionAware {
 
 /**
  * MultiDimTopology implements multi-dimensional network topologies
@@ -26,9 +26,9 @@ class MultiDimTopology : public Topology {
     MultiDimTopology() noexcept;
 
     /**
-     * Implement the send method of Topology.
+     * Implementation of route function in Topology.
      */
-    [[nodiscard]] EventTime send(DeviceId src, DeviceId dest, ChunkSize chunk_size) const noexcept override;
+    [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
 
     /**
      * Add a dimension to the multi-dimensional topology.
@@ -37,9 +37,19 @@ class MultiDimTopology : public Topology {
      */
     void append_dimension(std::unique_ptr<BasicTopology> basic_topology) noexcept;
 
+    /**
+     * Make connections for all nodes inter and intra dimensions.
+     */
+    void make_connections() noexcept;
+
+    /**
+     * Initialize all devices in the topology.
+     */
+    void initialize_all_devices() noexcept;
+
   private:
     /// BasicTopology instances per dimension.
-    std::vector<std::unique_ptr<BasicTopology>> topology_per_dim;
+    std::vector<std::unique_ptr<BasicTopology>> m_topology_per_dim;
 
     /**
      * Translate the NPU ID into a multi-dimensional address.
@@ -48,6 +58,8 @@ class MultiDimTopology : public Topology {
      * @return the same NPU in multi-dimensional address representation
      */
     [[nodiscard]] MultiDimAddress translate_address(DeviceId npu_id) const noexcept;
+
+    [[nodiscard]] DeviceId translate_address_back(const MultiDimAddress multi_dim_address) const noexcept;
 
     /**
      * Given src and dest address in multi-dimensional form,
@@ -60,6 +72,13 @@ class MultiDimTopology : public Topology {
      */
     [[nodiscard]] int get_dim_to_transfer(const MultiDimAddress& src_address,
                                           const MultiDimAddress& dest_address) const noexcept;
+
+    /** Get the number of devices per each dimension.
+     *  For example, if the topology is [2, 8, 4], then this function returns [32, 4, 1].
+     *
+     * @return number of devices per each dimension
+     */
+    [[nodiscard]] int get_total_num_devices() const noexcept;
 };
 
-}  // namespace NetworkAnalyticalCongestionUnaware
+}  // namespace NetworkAnalyticalCongestionAware

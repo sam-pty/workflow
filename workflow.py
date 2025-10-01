@@ -9,7 +9,7 @@ from enum import Enum, auto
 import time
 import concurrent.futures
 
-NUM_NPUS = 4
+NUM_NPUS = 16
 
 class ParallelismType(Enum):
     RC = auto()
@@ -391,7 +391,10 @@ class AstraSimRunner:
 
         # Check exit status
         if process.returncode != 0:
-            print(f"[ASTRA-sim] Exited with code {process.returncode} — check for errors in the log.")
+            if log_to_file:
+                print(f"[ASTRA-sim] Exited with code {process.returncode} — check {log_filename} for errors.")
+            else:
+                print(f"[ASTRA-sim] Exited with code {process.returncode}")
 
     def run_all(self):
         self.compile_astrasim()

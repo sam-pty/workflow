@@ -18,6 +18,9 @@ BinaryTree::BinaryTree(const int npus_count, const Bandwidth bandwidth, const La
     assert(bandwidth > 0);
     assert(latency >= 0);
 
+    // set topology type
+    this->basic_topology_type = TopologyBuildingBlock::BinaryTree;
+
     // initialize the root node
     // std:: cout << "npus_count: " << npus_count << std::endl;
     int depth = static_cast<int>(std::ceil(std::log2(npus_count + 1)) - 1);
