@@ -47,8 +47,8 @@ std::vector<ConnectionPolicy> Switch::get_connection_policies() const noexcept {
     std::vector<ConnectionPolicy> policies;
 
     for (auto i = 0; i < npus_count; i++) {
-        policies.emplace_back(ConnectionPolicy{i, switch_id});
-        policies.emplace_back(ConnectionPolicy{switch_id, i});
+        policies.emplace_back(i, switch_id);
+        policies.emplace_back(switch_id, i);
     }
 
     return policies;

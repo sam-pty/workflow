@@ -53,6 +53,8 @@ using MultiDimAddress = std::vector<DeviceId>;
 struct ConnectionPolicy {
     DeviceId src;
     DeviceId dst;
+
+    ConnectionPolicy(DeviceId src, DeviceId dst) : src(src), dst(dst){};
 };
 
 }  // namespace NetworkAnalytical

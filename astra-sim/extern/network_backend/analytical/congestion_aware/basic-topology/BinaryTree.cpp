@@ -115,14 +115,14 @@ void BinaryTree::connect_nodes(Node* node, Bandwidth bandwidth, Latency latency)
         // could be bidirectional or two wires
         // now two wires
         connect(node->left->id, node->id, bandwidth, latency, true);
-        m_policies.emplace_back(ConnectionPolicy{node->left->id, node->id});
-        m_policies.emplace_back(ConnectionPolicy{node->id, node->left->id});
+        m_policies.emplace_back(node->left->id, node->id);
+        m_policies.emplace_back(node->id, node->left->id);
         connect_nodes(node->left, bandwidth, latency);
     }
     if (node->right != nullptr) {
         connect(node->right->id, node->id, bandwidth, latency, true);
-        m_policies.emplace_back(ConnectionPolicy{node->right->id, node->id});
-        m_policies.emplace_back(ConnectionPolicy{node->id, node->right->id});
+        m_policies.emplace_back(node->right->id, node->id);
+        m_policies.emplace_back(node->id, node->right->id);
         connect_nodes(node->right, bandwidth, latency);
     }
 }

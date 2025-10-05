@@ -80,12 +80,12 @@ std::vector<ConnectionPolicy> Ring::get_connection_policies() const noexcept {
     std::vector<ConnectionPolicy> policies;
 
     for (int i = 0; i < npus_count; i++) {
-        policies.emplace_back(ConnectionPolicy{i, (i + 1) % npus_count});
+        policies.emplace_back(i, (i + 1) % npus_count);
     }
 
     if (bidirectional) {
         for (int i = 0; i < npus_count; i++) {
-            policies.emplace_back(ConnectionPolicy{(i + 1) % npus_count, i});
+            policies.emplace_back((i + 1) % npus_count, i);
         }
     }
 

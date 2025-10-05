@@ -47,7 +47,7 @@ std::vector<ConnectionPolicy> FullyConnected::get_connection_policies() const no
     for (auto src = 0; src < npus_count; src++) {
         for (auto dest = 0; dest < npus_count; dest++) {
             if (src != dest) {
-                policies.emplace_back(ConnectionPolicy{src, dest});
+                policies.emplace_back(src, dest);
             }
         }
     }
