@@ -129,7 +129,8 @@ void MultiDimTopology::make_connections() noexcept {
         }
     }
 
-    std::cout << "Current translation rule doesn't handle Switch where device++, need translation table class"
+    std::cout << "[Warning] Current translation rule doesn't handle Switch where device++, need translation table "
+                 "class, amd make connection policy method pure virtual"
               << std::endl;
 }
 

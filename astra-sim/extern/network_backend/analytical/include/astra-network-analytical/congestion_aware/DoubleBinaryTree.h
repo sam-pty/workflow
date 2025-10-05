@@ -55,6 +55,13 @@ public:
    */
   [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
 
+  /**
+   * Get connection policies
+   *
+   * @return list of connection policies
+   */
+  [[nodiscard]] std::vector<ConnectionPolicy> get_connection_policies() const noexcept override;
+
 private:
   /** Builds the binary tree recursively.
    * The root node is at depth 0, and the left child is at depth 1.
@@ -107,6 +114,8 @@ private:
   /// indexing used to assign ids to nodes
   uint32_t m_min_start = 0; // starting id for the first node
   uint32_t m_max_start = 0; // starting id for the first node
+  /// connection policies constructed while building tree
+  std::vector<ConnectionPolicy> m_policies;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware

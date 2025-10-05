@@ -52,3 +52,14 @@ Route Mesh::route(DeviceId src, DeviceId dest) const noexcept {
     // return the constructed route
     return route;
 }
+
+std::vector<ConnectionPolicy> Mesh::get_connection_policies() const noexcept {
+    std::vector<ConnectionPolicy> policies;
+
+    for (int i = 0; i < npus_count - 1; i++) {
+        policies.emplace_back(ConnectionPolicy{i, i + 1});
+        policies.emplace_back(ConnectionPolicy{i + 1, i});
+    }
+
+    return policies;
+}
