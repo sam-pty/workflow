@@ -13,21 +13,14 @@ using namespace NetworkAnalytical;
 namespace NetworkAnalyticalCongestionAware {
 
 /**
- * Implements a mesh topology.
+ * Implements a 1-D mesh topology.
  *
- * Mesh(8) example:
+ * Mesh(4) example:
  * 0 - 1 - 2 - 3
- * |   |   |   |
- * 7 - 6 - 5 - 4
  *
- * Therefore, the number of NPUs and devices are both 8.
- *
- * If mesh is uni-directional, then each chunk can flow through:
- * 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 0
- *
- * If the mesh is bi-directional, then each chunk can flow through:
- * 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 0
- * 0 <- 1 <- 2 <- 3 <- 4 <- 5 <- 6 <- 7 <- 0
+ * mesh has to be bi-directional, each chunk can flow through:
+ * 0 -> 1 -> 2 -> 3
+ * 0 <- 1 <- 2 <- 3
  */
 class Mesh final : public BasicTopology {
   public:
@@ -45,6 +38,16 @@ class Mesh final : public BasicTopology {
      * Implementation of route function in Topology.
      */
     [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
+
+    /**
+     * Get connection policies
+     * Each connection policy is represented as a pair of (src, dest) device ids.
+     * For a 4-node mesh, the connection policies are:
+     * - if bidirectional: (0,1), (1,2), (2,3), (1,0), (2,1), (3,2)
+     *
+     * @return list of connection policies
+     */
+    [[nodiscard]] std::vector<ConnectionPolicy> get_connection_policies() const noexcept override;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware
