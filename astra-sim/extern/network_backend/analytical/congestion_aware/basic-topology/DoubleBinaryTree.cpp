@@ -134,8 +134,8 @@ void DoubleBinaryTree::connect_nodes(Node* node, Bandwidth bandwidth, Latency la
         {
             connect(node->left->id, node->id, bandwidth, latency, true);
             // add connection policy
-            m_policies.emplace_back(ConnectionPolicy{node->left->id, node->id});
-            m_policies.emplace_back(ConnectionPolicy{node->id, node->left->id});
+            m_policies.emplace_back(node->left->id, node->id);
+            m_policies.emplace_back(node->id, node->left->id);
         }
         catch (const std::runtime_error& e)
         {
@@ -147,8 +147,8 @@ void DoubleBinaryTree::connect_nodes(Node* node, Bandwidth bandwidth, Latency la
     if (node->right != nullptr) {
         connect(node->right->id, node->id, bandwidth, latency, true);
         // add connection policy
-        m_policies.emplace_back(ConnectionPolicy{node->right->id, node->id});
-        m_policies.emplace_back(ConnectionPolicy{node->id, node->right->id});
+        m_policies.emplace_back(node->right->id, node->id);
+        m_policies.emplace_back(node->id, node->right->id);
         // recurse to subtree
         connect_nodes(node->right, bandwidth, latency);
     }
