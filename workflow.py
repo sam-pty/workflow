@@ -144,7 +144,7 @@ class LayerMetrics:
 class DeepFlowParser:
     def __init__(self, rundir="DeepFlow", outdir='astra-sim/'):
         self.rundir = rundir
-        self.input_file = os.path.join(rundir, "scripts", "mat_dims_small.txt")
+        self.input_file = os.path.join(rundir, "scripts", "mat_dims.txt")
         self.llm_dir = os.path.join(rundir, "output", "LLM")
         self.out_dir = outdir
         self.output_file = os.path.join(self.out_dir, "examples", "text_converter", "text_workloads", "Df_Model.txt")
