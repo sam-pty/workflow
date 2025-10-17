@@ -98,8 +98,8 @@ TopologyBuildingBlock NetworkParser::parse_topology_name(const std::string& topo
         return TopologyBuildingBlock::Switch;
     }
 
-    if (topology_name == "BinaryTree") {
-        return TopologyBuildingBlock::BinaryTree;
+    if (topology_name == "Bus") {
+        return TopologyBuildingBlock::Bus;
     }
 
     if (topology_name == "BinaryTree") {

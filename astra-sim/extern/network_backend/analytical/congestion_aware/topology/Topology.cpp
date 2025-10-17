@@ -81,6 +81,33 @@ void Topology::connect(const DeviceId src,
     assert(latency >= 0);
 
     // connect src -> dest
+    if (src == 2 || src == 14){
+        devices.at(src)->connect(dest, bandwidth * 0.9, latency);
+    }
+    else{
+        devices.at(src)->connect(dest, bandwidth, latency);
+    }
+
+    // if bidirectional, connect dest -> src
+    if (bidirectional) {
+        devices.at(dest)->connect(src, bandwidth, latency);
+    }
+}
+
+void Topology::bus_connect(const DeviceId src,
+                       const DeviceId dest,
+                       const Bandwidth bandwidth,
+                       const Latency latency,
+                       const bool bidirectional) noexcept {
+    // assert the src and dest are valid
+    assert(0 <= src && src < devices_count);
+    assert(0 <= dest && dest < devices_count);
+
+    // assert bandwidth and latency are valid
+    assert(bandwidth > 0);
+    assert(latency >= 0);
+
+    // connect src -> dest
     devices.at(src)->connect(dest, bandwidth, latency);
 
     // if bidirectional, connect dest -> src
@@ -88,6 +115,7 @@ void Topology::connect(const DeviceId src,
         devices.at(dest)->connect(src, bandwidth, latency);
     }
 }
+
 
 void Topology::instantiate_devices() noexcept {
     // instantiate all devices

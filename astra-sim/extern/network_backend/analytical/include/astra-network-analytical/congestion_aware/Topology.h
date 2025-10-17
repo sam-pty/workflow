@@ -129,6 +129,8 @@ class Topology {
      * @param bidirectional true if connection is bidirectional, false otherwise
      */
     void connect(DeviceId src, DeviceId dest, Bandwidth bandwidth, Latency latency, bool bidirectional = true) noexcept;
+
+    void bus_connect(DeviceId src, DeviceId dest, Bandwidth bandwidth, Latency latency, bool bidirectional = true) noexcept;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware

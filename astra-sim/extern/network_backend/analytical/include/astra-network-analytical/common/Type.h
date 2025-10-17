@@ -37,6 +37,7 @@ enum class TopologyBuildingBlock {
     Ring,
     FullyConnected,
     Switch,
+    Bus,
     BinaryTree,
     DoubleBinaryTree,
     Mesh,
@@ -49,10 +50,15 @@ enum class TopologyBuildingBlock {
 /// then the NPU ID can be broken down into [1, 7, 1].
 using MultiDimAddress = std::vector<DeviceId>;
 
+enum class ConnectionType { Dedicated, Shared };
 /// Connection policy between two devices, (src, dst) means a link from src to dst
 struct ConnectionPolicy {
+
     DeviceId src;
     DeviceId dst;
+    ConnectionType type = ConnectionType::Dedicated;
+    
+
 };
 
 }  // namespace NetworkAnalytical
