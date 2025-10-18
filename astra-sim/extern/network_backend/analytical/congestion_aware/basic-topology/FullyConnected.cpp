@@ -8,7 +8,10 @@ LICENSE file in the root directory of this source tree.
 
 using namespace NetworkAnalyticalCongestionAware;
 
-FullyConnected::FullyConnected(const int npus_count, const Bandwidth bandwidth, const Latency latency) noexcept
+FullyConnected::FullyConnected(const int npus_count,
+                               const Bandwidth bandwidth,
+                               const Latency latency,
+                               const bool is_multi_dim) noexcept
     : BasicTopology(npus_count, npus_count, bandwidth, latency) {
     assert(npus_count > 0);
     assert(bandwidth > 0);
@@ -18,10 +21,12 @@ FullyConnected::FullyConnected(const int npus_count, const Bandwidth bandwidth, 
     basic_topology_type = TopologyBuildingBlock::FullyConnected;
 
     // fully-connect every src-dest pairs
-    for (auto src = 0; src < npus_count; src++) {
-        for (auto dest = 0; dest < npus_count; dest++) {
-            if (src != dest) {
-                connect(src, dest, bandwidth, latency, false);
+    if (!is_multi_dim) {
+        for (auto src = 0; src < npus_count; src++) {
+            for (auto dest = 0; dest < npus_count; dest++) {
+                if (src != dest) {
+                    connect(src, dest, bandwidth, latency, false);
+                }
             }
         }
     }

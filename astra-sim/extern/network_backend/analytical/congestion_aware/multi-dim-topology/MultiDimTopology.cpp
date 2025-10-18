@@ -6,6 +6,7 @@ LICENSE file in the root directory of this source tree.
 #include "congestion_aware/MultiDimTopology.h"
 #include "congestion_aware/Helper.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <functional>
@@ -59,7 +60,23 @@ Route MultiDimTopology::route(DeviceId src, DeviceId dest) const noexcept {
                 // translate to global device ID
                 MultiDimAddress internal_device_address{last_dest_address};
                 internal_device_address.at(dim_to_transfer) = internal_device_number->get_id();
-                const auto global_device_id = translate_address_back(internal_device_address);
+
+                // check if switch
+                DeviceId global_device_id = -1;
+                if (is_switch(internal_device_address)) {
+                    // use translation unit for switch
+                    if (m_switch_translation_unit.has_value()) {
+                        global_device_id =
+                            m_switch_translation_unit.value().translate_address_to_id(internal_device_address);
+                    } else {
+                        std::cerr << "[Error] (network/analytical/congestion_aware/MultiDimTopology): "
+                                  << "SwitchTranslationUnit is not initialized." << std::endl;
+                        std::exit(-1);
+                    }
+                } else {
+                    // normal device
+                    global_device_id = translate_address_back(internal_device_address);
+                }
                 assert(0 <= global_device_id && global_device_id < devices_count);
 
                 // push to route in this dimension
@@ -105,6 +122,12 @@ void MultiDimTopology::append_dimension(std::unique_ptr<BasicTopology> topology)
 }
 
 void MultiDimTopology::make_connections() noexcept {
+    if (!m_switch_translation_unit.has_value()) {
+        std::cerr << "[Error] (network/analytical/congestion_aware/MultiDimTopology): "
+                  << "SwitchTranslationUnit is not initialized." << std::endl;
+        std::exit(-1);
+    }
+
     for (int dim = 0; dim < dims_count; dim++) {
         // intra-dim connections
         const auto topology = m_topology_per_dim.at(dim).get();
@@ -115,9 +138,14 @@ void MultiDimTopology::make_connections() noexcept {
             std::vector<std::pair<MultiDimAddress, MultiDimAddress>> address_pairs =
                 generateAddressPairs(npus_count_per_dim, policy, dim);
             for (const auto& address_pair : address_pairs) {
-                // translate to device ID
-                const auto src = translate_address_back(address_pair.first);
-                const auto dest = translate_address_back(address_pair.second);
+                // translate to device ID, depending on switch or not
+
+                const auto src = is_switch(address_pair.first)
+                                     ? m_switch_translation_unit.value().translate_address_to_id(address_pair.first)
+                                     : translate_address_back(address_pair.first);
+                const auto dest = is_switch(address_pair.second)
+                                      ? m_switch_translation_unit.value().translate_address_to_id(address_pair.second)
+                                      : translate_address_back(address_pair.second);
                 assert(0 <= src && src < devices_count);
                 assert(0 <= dest && dest < devices_count);
 
@@ -128,10 +156,6 @@ void MultiDimTopology::make_connections() noexcept {
             }
         }
     }
-
-    std::cout << "[Warning] Current translation rule doesn't handle Switch where device++, need translation table "
-                 "class, amd make connection policy method pure virtual"
-              << std::endl;
 }
 
 void MultiDimTopology::initialize_all_devices() noexcept {
@@ -233,6 +257,37 @@ int MultiDimTopology::get_total_num_devices() const noexcept {
     }
 
     return total_npu_device + total_switch_device;
+}
+
+bool MultiDimTopology::is_switch(const MultiDimAddress& address) const noexcept {
+    assert(address.size() == npus_count_per_dim.size());
+
+    // element-wise check if all address is less than npus_count_per_dim
+    // switch should have one and only one equal to dim
+    auto result =
+        std::mismatch(npus_count_per_dim.begin(), npus_count_per_dim.end(), address.begin(), [](int r, int a) {
+            // The predicate: Check if the address element 'a' is less than the npus_count_per_dim element 'r'
+            return a < r;
+        });
+
+    // If result.first is equal to range.end(), it means std::mismatch
+    // reached the end without finding a mismatch (i.e., a pair where a >= r).
+    return result.first != npus_count_per_dim.end();
+}
+
+void MultiDimTopology::build_switch_length_mapping() noexcept {
+    if (!m_switch_translation_unit.has_value()) {
+        std::vector<bool> is_switch_dim;
+        is_switch_dim.resize(dims_count);
+
+        // create a boolean mask for whether each dimension is a switch
+        std::transform(m_topology_per_dim.begin(), m_topology_per_dim.end(), is_switch_dim.begin(),
+                       [](const std::unique_ptr<BasicTopology>& topology) {
+                           return topology->get_basic_topology_type() == TopologyBuildingBlock::Switch;
+                       });
+
+        m_switch_translation_unit.emplace(npus_count_per_dim, is_switch_dim);
+    }
 }
 
 };  // namespace NetworkAnalyticalCongestionAware
