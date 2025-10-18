@@ -9,7 +9,7 @@ LICENSE file in the root directory of this source tree.
 
 using namespace NetworkAnalyticalCongestionAware;
 
-Mesh::Mesh(const int npus_count, const Bandwidth bandwidth, const Latency latency) noexcept
+Mesh::Mesh(const int npus_count, const Bandwidth bandwidth, const Latency latency, const bool is_multi_dim) noexcept
     : BasicTopology(npus_count, npus_count, bandwidth, latency) {
     assert(npus_count > 0);
     assert(bandwidth > 0);
@@ -19,8 +19,10 @@ Mesh::Mesh(const int npus_count, const Bandwidth bandwidth, const Latency latenc
     this->basic_topology_type = TopologyBuildingBlock::Mesh;
 
     // connect npus in a mesh
-    for (auto i = 0; i < npus_count - 1; i++) {
-        connect(i, i + 1, bandwidth, latency, true);
+    if (!is_multi_dim) {
+        for (auto i = 0; i < npus_count - 1; i++) {
+            connect(i, i + 1, bandwidth, latency, true);
+        }
     }
 }
 

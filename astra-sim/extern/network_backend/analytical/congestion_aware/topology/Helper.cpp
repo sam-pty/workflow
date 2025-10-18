@@ -63,27 +63,29 @@ std::shared_ptr<Topology> NetworkAnalyticalCongestionAware::construct_topology(
             const auto npus_count = npus_counts_per_dim[dim];
             const auto bandwidth = bandwidths_per_dim[dim];
             const auto latency = latencies_per_dim[dim];
+            const bool is_multi_dim = true;
 
             // create a network dim
             std::unique_ptr<BasicTopology> dim_topology;
             switch (topology_type) {
             case TopologyBuildingBlock::Ring:
-                dim_topology = std::make_unique<Ring>(npus_count, bandwidth, latency);
+                dim_topology =
+                    std::make_unique<Ring>(npus_count, bandwidth, latency, /* bidirectional = */ false, is_multi_dim);
                 break;
             case TopologyBuildingBlock::Switch:
-                dim_topology = std::make_unique<Switch>(npus_count, bandwidth, latency);
+                dim_topology = std::make_unique<Switch>(npus_count, bandwidth, latency, is_multi_dim);
                 break;
             case TopologyBuildingBlock::FullyConnected:
-                dim_topology = std::make_unique<FullyConnected>(npus_count, bandwidth, latency);
+                dim_topology = std::make_unique<FullyConnected>(npus_count, bandwidth, latency, is_multi_dim);
                 break;
             case TopologyBuildingBlock::BinaryTree:
-                dim_topology = std::make_unique<BinaryTree>(npus_count, bandwidth, latency);
+                dim_topology = std::make_unique<BinaryTree>(npus_count, bandwidth, latency, is_multi_dim);
                 break;
             case TopologyBuildingBlock::DoubleBinaryTree:
-                dim_topology = std::make_unique<DoubleBinaryTree>(npus_count, bandwidth, latency);
+                dim_topology = std::make_unique<DoubleBinaryTree>(npus_count, bandwidth, latency, is_multi_dim);
                 break;
             case TopologyBuildingBlock::Mesh:
-                dim_topology = std::make_unique<Mesh>(npus_count, bandwidth, latency);
+                dim_topology = std::make_unique<Mesh>(npus_count, bandwidth, latency, is_multi_dim);
                 break;
             default:
                 // shouldn't reach here
@@ -97,6 +99,7 @@ std::shared_ptr<Topology> NetworkAnalyticalCongestionAware::construct_topology(
         }
 
         multi_dim_topology->initialize_all_devices();
+        multi_dim_topology->build_switch_length_mapping();
         multi_dim_topology->make_connections();
 
         // return created multi-dimensional topology

@@ -32,7 +32,7 @@ class Mesh final : public BasicTopology {
      * @param latency latency of link
      * @param bidirectional true if mesh is bidirectional, false otherwise
      */
-    Mesh(int npus_count, Bandwidth bandwidth, Latency latency) noexcept;
+    Mesh(int npus_count, Bandwidth bandwidth, Latency latency, bool is_multi_dim = false) noexcept;
 
     /**
      * Implementation of route function in Topology.

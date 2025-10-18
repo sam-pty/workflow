@@ -44,7 +44,7 @@ public:
    * @param latency latency of link
    * @param bidirectional true if ring is bidirectional, false otherwise
    */
-  BinaryTree(int npus_count, Bandwidth bandwidth, Latency latency) noexcept;
+  BinaryTree(int npus_count, Bandwidth bandwidth, Latency latency, const bool is_multi_dim = false) noexcept;
 
   ~BinaryTree() override;
 

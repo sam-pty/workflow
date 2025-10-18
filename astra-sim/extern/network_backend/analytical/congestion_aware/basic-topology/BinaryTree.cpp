@@ -12,7 +12,10 @@ LICENSE file in the root directory of this source tree.
 namespace NetworkAnalyticalCongestionAware
 {
 
-BinaryTree::BinaryTree(const int npus_count, const Bandwidth bandwidth, const Latency latency) noexcept
+BinaryTree::BinaryTree(const int npus_count,
+                       const Bandwidth bandwidth,
+                       const Latency latency,
+                       const bool is_multi_dim) noexcept
     : BasicTopology(npus_count, npus_count, bandwidth, latency) {
     assert(npus_count > 0);
     assert(bandwidth > 0);
@@ -29,7 +32,9 @@ BinaryTree::BinaryTree(const int npus_count, const Bandwidth bandwidth, const La
     build_tree(m_root);
     
     // traverse the tree and connect nodes
-    connect_nodes(m_root, bandwidth, latency);
+    if (!is_multi_dim) {
+        connect_nodes(m_root, bandwidth, latency);
+    }
     m_start = 0; // reset the starting id for the first node
     print(m_root);
 }

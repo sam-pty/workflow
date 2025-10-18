@@ -29,7 +29,8 @@ class BasicTopology : public Topology {
      * @param bandwidth bandwidth of each link
      * @param latency latency of each link
      */
-    BasicTopology(int npus_count, int devices_count, Bandwidth bandwidth, Latency latency) noexcept;
+    BasicTopology(
+        int npus_count, int devices_count, Bandwidth bandwidth, Latency latency, bool is_multi_dim = false) noexcept;
 
     /**
      * Destructor.
@@ -50,11 +51,7 @@ class BasicTopology : public Topology {
      *
      * @return list of connection policies
      */
-    [[nodiscard]] virtual inline std::vector<ConnectionPolicy> get_connection_policies() const noexcept {
-        std::cout << "Not implemented yet." << std::endl;
-        std::exit(1);
-        return {};
-    };  // @todo need to make virtual later
+    [[nodiscard]] virtual inline std::vector<ConnectionPolicy> get_connection_policies() const noexcept = 0;
 
     [[nodiscard]] virtual Latency get_link_latency() const noexcept;
 

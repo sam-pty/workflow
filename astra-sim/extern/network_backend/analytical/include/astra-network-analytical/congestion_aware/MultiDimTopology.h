@@ -7,8 +7,11 @@ LICENSE file in the root directory of this source tree.
 
 #include "common/Type.h"
 #include "congestion_aware/BasicTopology.h"
+#include "congestion_aware/SwitchTranslationUnit.h"
 #include "congestion_aware/Topology.h"
+
 #include <memory>
+#include <optional>
 
 using namespace NetworkAnalytical;
 
@@ -47,10 +50,12 @@ class MultiDimTopology : public Topology {
      */
     void initialize_all_devices() noexcept;
 
-  private:
-    /// BasicTopology instances per dimension.
-    std::vector<std::unique_ptr<BasicTopology>> m_topology_per_dim;
+    /**
+     * Build mapping from switch address length to starting offset.
+     */
+    void build_switch_length_mapping() noexcept;
 
+  private:
     /**
      * Translate the NPU ID into a multi-dimensional address.
      *
@@ -79,6 +84,19 @@ class MultiDimTopology : public Topology {
      * @return number of devices per each dimension
      */
     [[nodiscard]] int get_total_num_devices() const noexcept;
+
+    /**
+     * Check if the given address corresponds to a switch device.
+     *
+     * @param address multi-dimensional address to check
+     * @return @c true if the address corresponds to a switch, false otherwise
+     */
+    [[nodiscard]] bool is_switch(const MultiDimAddress& address) const noexcept;
+
+    /// BasicTopology instances per dimension.
+    std::vector<std::unique_ptr<BasicTopology>> m_topology_per_dim;
+    /// Switch translation unit for address to device ID translation.
+    std::optional<SwitchTranslationUnit> m_switch_translation_unit;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware

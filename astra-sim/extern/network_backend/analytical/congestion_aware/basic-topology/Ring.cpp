@@ -8,9 +8,13 @@ LICENSE file in the root directory of this source tree.
 
 using namespace NetworkAnalyticalCongestionAware;
 
-Ring::Ring(const int npus_count, const Bandwidth bandwidth, const Latency latency, const bool bidirectional) noexcept
+Ring::Ring(const int npus_count,
+           const Bandwidth bandwidth,
+           const Latency latency,
+           const bool bidirectional,
+           const bool is_multi_dim) noexcept
     : bidirectional(bidirectional),
-      BasicTopology(npus_count, npus_count, bandwidth, latency) {
+      BasicTopology(npus_count, npus_count, bandwidth, latency, is_multi_dim) {
     assert(npus_count > 0);
     assert(bandwidth > 0);
     assert(latency >= 0);
@@ -18,11 +22,13 @@ Ring::Ring(const int npus_count, const Bandwidth bandwidth, const Latency latenc
     // set topology type
     Ring::basic_topology_type = TopologyBuildingBlock::Ring;
 
-    // connect npus in a ring
-    for (auto i = 0; i < npus_count - 1; i++) {
-        connect(i, i + 1, bandwidth, latency, bidirectional);
+    if (!is_multi_dim) {
+        // connect npus in a ring
+        for (auto i = 0; i < npus_count - 1; i++) {
+            connect(i, i + 1, bandwidth, latency, bidirectional);
+        }
+        connect(npus_count - 1, 0, bandwidth, latency, bidirectional);
     }
-    connect(npus_count - 1, 0, bandwidth, latency, bidirectional);
 
     // this also works
     // std::vector<ConnectionPolicy> policies = get_connection_policies();
