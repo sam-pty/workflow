@@ -41,8 +41,9 @@ Route MultiDimTopology::route(DeviceId src, DeviceId dest) const noexcept {
     DeviceId last_dest{src};
 
     for (int dim_to_transfer = dims_count - 1; dim_to_transfer >= 0; dim_to_transfer--) {
-        // if dimension same, skip
+        // if index in the current dimension is the same, skip
         if (src_address.at(dim_to_transfer) != dest_address.at(dim_to_transfer)) {
+            
             // find destination in next dimension
             MultiDimAddress next_dim_dest_address{last_dest_address};
             next_dim_dest_address.at(dim_to_transfer) = dest_address.at(dim_to_transfer);
