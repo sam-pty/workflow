@@ -44,7 +44,7 @@ public:
    * @param latency latency of link
    * @param bidirectional true if ring is bidirectional, false otherwise
    */
-  BinaryTree(int npus_count, Bandwidth bandwidth, Latency latency) noexcept;
+  BinaryTree(int npus_count, Bandwidth bandwidth, Latency latency, const bool is_multi_dim = false) noexcept;
 
   ~BinaryTree() override;
 
@@ -52,6 +52,13 @@ public:
    * Implementation of route function in Topology.
    */
   [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
+
+  /**
+   * Get connection policies
+   *
+   * @return list of connection policies
+   */
+  [[nodiscard]] std::vector<ConnectionPolicy> get_connection_policies() const noexcept override;
 
 private:
   /** Builds the binary tree recursively.
@@ -103,6 +110,8 @@ private:
   Node* m_root = nullptr;
   /// indexing used to assign ids to nodes
   uint32_t m_start = 0; // starting id for the first node
+  /// connection policies constructed while building tree
+  std::vector<ConnectionPolicy> m_policies;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware

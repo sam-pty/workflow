@@ -51,7 +51,7 @@ void Device::connect(const DeviceId id, const Bandwidth bandwidth, const Latency
     // assert there's no existing connection
     // assert(!connected(id));
     if (connected(id)) {
-        std::cout << "Device already connected to the given id." << std::endl;
+        std::cout << "Device " << device_id << " already connected to Device " << id << "." << std::endl;
         return;
     }
 

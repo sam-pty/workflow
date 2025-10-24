@@ -46,7 +46,7 @@ public:
    * @param latency latency of link
    * @param bidirectional true if ring is bidirectional, false otherwise
    */
-  DoubleBinaryTree(int npus_count, Bandwidth bandwidth, Latency latency) noexcept;
+  DoubleBinaryTree(int npus_count, Bandwidth bandwidth, Latency latency, bool is_multi_dim = false) noexcept;
 
   ~DoubleBinaryTree() override;
 
@@ -54,6 +54,13 @@ public:
    * Implementation of route function in Topology.
    */
   [[nodiscard]] Route route(DeviceId src, DeviceId dest) const noexcept override;
+
+  /**
+   * Get connection policies
+   *
+   * @return list of connection policies
+   */
+  [[nodiscard]] std::vector<ConnectionPolicy> get_connection_policies() const noexcept override;
 
 private:
   /** Builds the binary tree recursively.
@@ -107,6 +114,8 @@ private:
   /// indexing used to assign ids to nodes
   uint32_t m_min_start = 0; // starting id for the first node
   uint32_t m_max_start = 0; // starting id for the first node
+  /// connection policies constructed while building tree
+  std::vector<ConnectionPolicy> m_policies;
 };
 
 }  // namespace NetworkAnalyticalCongestionAware

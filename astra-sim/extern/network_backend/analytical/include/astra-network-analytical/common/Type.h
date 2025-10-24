@@ -56,9 +56,8 @@ struct ConnectionPolicy {
 
     DeviceId src;
     DeviceId dst;
-    ConnectionType type = ConnectionType::Dedicated;
-    
 
+    ConnectionPolicy(DeviceId src, DeviceId dst) : src(src), dst(dst){};
 };
 
 }  // namespace NetworkAnalytical

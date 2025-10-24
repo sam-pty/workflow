@@ -39,7 +39,11 @@ class Ring final : public BasicTopology {
      * @param latency latency of link
      * @param bidirectional true if ring is bidirectional, false otherwise
      */
-    Ring(int npus_count, Bandwidth bandwidth, Latency latency, bool bidirectional = true) noexcept;
+    Ring(int npus_count,
+         Bandwidth bandwidth,
+         Latency latency,
+         bool bidirectional = true,
+         bool is_multi_dim = false) noexcept;
 
     /**
      * Implementation of route function in Topology.
