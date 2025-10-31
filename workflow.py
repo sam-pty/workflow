@@ -9,6 +9,7 @@ from enum import Enum, auto
 import time
 import concurrent.futures
 
+a = 3
 NUM_NPUS = 16
 
 class ParallelismType(Enum):
