@@ -1,4 +1,7 @@
-topology: [ Ring, Ring ] # FullyConnected, Switch, Ring, BinaryTree, DoubleBinaryTree, Mesh, HyperCube
-npus_count: [ 4, 4 ]
-bandwidth: [ 32.0, 32.0 ]  # GB/s
-latency: [ 50.0, 50.0 ]  # ns
+topology: [ Torus2D ] # FullyConnected, Switch, Ring, BinaryTree, DoubleBinaryTree, Mesh, HyperCube
+npus_count: [ 16 ]
+bandwidth: [ 32.0 ]  # GB/s
+latency: [ 50.0 ]  # ns
+
+
+You need to implement Torus Logical topology (get receivers/senders) and change Collective algorithm

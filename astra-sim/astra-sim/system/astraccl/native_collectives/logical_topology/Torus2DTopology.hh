@@ -3,8 +3,8 @@ This source code is licensed under the MIT license found in the
 LICENSE file in the root directory of this source tree.
 *******************************************************************************/
 
-#ifndef __RING_TOPOLOGY_HH__
-#define __RING_TOPOLOGY_HH__
+#ifndef __TORUS2D_TOPOLOGY_HH__
+#define __TORUS2D_TOPOLOGY_HH__
 
 #include <map>
 #include <string>
@@ -15,20 +15,18 @@ LICENSE file in the root directory of this source tree.
 
 namespace AstraSim {
 
-class RingTopology : public BasicLogicalTopology {
+class Torus2DTopology : public BasicLogicalTopology {
   public:
     enum class Direction { Clockwise, Anticlockwise };
     enum class Dimension { Local, Vertical, Horizontal, NA };
     int get_num_of_nodes_in_dimension(int dimension) override;
-    RingTopology(Dimension dimension,
+    Torus2DTopology(Dimension dimension,
                  int id,
                  int total_nodes_in_ring,
                  int index_in_ring,
                  int offset);
-    RingTopology(Dimension dimension, int id, std::vector<int> NPUs);
-    virtual int get_receiver(int node_id, Direction direction);
+    Torus2DTopology(Dimension dimension, int id, std::vector<int> NPUs);
     virtual std::vector<int> get_receivers(int node_id, Direction direction) const;
-    virtual int get_sender(int node_id, Direction direction);
     virtual std::vector<int> get_senders(int node_id, Direction direction) const;
     int get_nodes_in_ring();
     bool is_enabled();
@@ -44,6 +42,8 @@ class RingTopology : public BasicLogicalTopology {
     int offset;
     int total_nodes_in_ring;
     int index_in_ring;
+    
+
     Dimension dimension;
     
     std::vector<int> dims;  // Sizes per dimension, 
@@ -57,4 +57,4 @@ class RingTopology : public BasicLogicalTopology {
 
 }  // namespace AstraSim
 
-#endif /* __RING_TOPOLOGY_HH__ */
+#endif /* __TORUS2D_TOPOLOGY_HH__ */

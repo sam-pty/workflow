@@ -17,6 +17,7 @@ LICENSE file in the root directory of this source tree.
 #include "astra-sim/system/Roofline.hh"
 #include "astra-sim/system/UsageTracker.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/RingTopology.hh"
+#include "astra-sim/system/astraccl/native_collectives/logical_topology/Torus2DTopology.hh"
 #include "astra-sim/workload/Workload.hh"
 
 namespace AstraSim {

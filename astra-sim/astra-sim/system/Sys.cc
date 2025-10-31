@@ -29,6 +29,7 @@ LICENSE file in the root directory of this source tree.
 #include "astra-sim/system/astraccl/native_collectives/collective_algorithm/HyperCube.hh"
 #include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Mesh.hh"
 #include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Ring.hh"
+#include "astra-sim/system/astraccl/native_collectives/collective_algorithm/Torus2D.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/BasicLogicalTopology.hh"
 #include "astra-sim/system/astraccl/native_collectives/logical_topology/GeneralComplexTopology.hh"
 #include "astra-sim/system/scheduling/OfflineGreedy.hh"
@@ -514,6 +515,8 @@ CollectiveImpl* Sys::generate_collective_impl_from_input(
         return new CollectiveImpl(CollectiveImplType::OneRing);
     } else if (collective_impl_str == "doubleBinaryTree") {
         return new CollectiveImpl(CollectiveImplType::DoubleBinaryTree);
+    } else if (collective_impl_str == "torus2d") {
+        return new CollectiveImpl(CollectiveImplType::Torus2D);
     } else if (collective_impl_str.rfind("direct", 0) == 0) {
         int window = -1;
         if (collective_impl_str != "direct") {
@@ -531,6 +534,7 @@ CollectiveImpl* Sys::generate_collective_impl_from_input(
     } else if (collective_impl_str == "oneHalvingDoubling") {
         return new CollectiveImpl(CollectiveImplType::OneHalvingDoubling);
     } else {
+        cout<<"The input:"<<collective_impl_str<<endl;
         sys_panic("Cannot interpret collective implementations. Please check "
                   "the collective implementations in the sys"
                   "input file");
@@ -1091,6 +1095,14 @@ CollectivePhase Sys::generate_collective_phase(
                            new HalvingDoubling(collective_type, id,
                                                (RingTopology*)topology,
                                                data_size));
+        return vn;
+    } 
+    else if (collective_impl->type == CollectiveImplType::Torus2D) {
+        CollectivePhase vn(
+            this, queue_id,
+            new Torus2D(collective_type, id, (Torus2DTopology*)topology, data_size,
+                     static_cast<Torus2DTopology::Direction>(direction),
+                     injection_policy));
         return vn;
     } else if (collective_impl->type == CollectiveImplType::ChakraImpl) {
         string filename = ((ChakraCollectiveImpl*)collective_impl)->filename;

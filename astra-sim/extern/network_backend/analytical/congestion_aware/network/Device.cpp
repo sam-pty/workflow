@@ -34,7 +34,7 @@ void Device::send(std::unique_ptr<Chunk> chunk) noexcept {
     // get next dest
     const auto next_dest = chunk->next_device();
     const auto next_dest_id = next_dest->get_id();
-
+    //std::cout<<"source:" << device_id <<"dest node:" << next_dest_id << std::endl;
     // assert the next dest is connected to this node
     assert(connected(next_dest_id));
 

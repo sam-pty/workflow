@@ -3,7 +3,7 @@ This source code is licensed under the MIT license found in the
 LICENSE file in the root directory of this source tree.
 *******************************************************************************/
 
-#include "astra-sim/system/astraccl/native_collectives/logical_topology/RingTopology.hh"
+#include "astra-sim/system/astraccl/native_collectives/logical_topology/Torus2DTopology.hh"
 #include "astra-sim/common/Logging.hh"
 
 #include <cassert>
@@ -12,8 +12,8 @@ LICENSE file in the root directory of this source tree.
 using namespace std;
 using namespace AstraSim;
 
-RingTopology::RingTopology(Dimension dimension, int id, std::vector<int> NPUs)
-    : BasicLogicalTopology(BasicLogicalTopology::BasicTopology::Ring) {
+Torus2DTopology::Torus2DTopology(Dimension dimension, int id, std::vector<int> NPUs)
+    : BasicLogicalTopology(BasicLogicalTopology::BasicTopology::Torus2D) {
     name = "local";
     if (dimension == Dimension::Vertical) {
         name = "vertical";
@@ -25,7 +25,7 @@ RingTopology::RingTopology(Dimension dimension, int id, std::vector<int> NPUs)
     this->dimension = dimension;
     this->offset = -1;
     this->index_in_ring = -1;
-
+    
     // Initialize dims
     if (dimension == Dimension::Local) {
         dims = {total_nodes_in_ring};
@@ -44,7 +44,7 @@ RingTopology::RingTopology(Dimension dimension, int id, std::vector<int> NPUs)
         }
     }
 
-    LoggerFactory::get_logger("system::topology::RingTopology")
+    LoggerFactory::get_logger("system::topology::Torus2DTopology")
         ->info("custom ring, id: {}, dimension: {} total nodes in ring: {} "
                "index in ring: {} total nodes in ring {}",
                id, name, total_nodes_in_ring, index_in_ring,
@@ -53,7 +53,7 @@ RingTopology::RingTopology(Dimension dimension, int id, std::vector<int> NPUs)
     assert(index_in_ring >= 0);
 }
 
-RingTopology::RingTopology(Dimension dimension,
+Torus2DTopology::Torus2DTopology(Dimension dimension,
                            int id,
                            int total_nodes_in_ring,
                            int index_in_ring,
@@ -66,7 +66,7 @@ RingTopology::RingTopology(Dimension dimension,
         name = "horizontal";
     }
     if (id == 0) {
-        LoggerFactory::get_logger("system::topology::RingTopology")
+        LoggerFactory::get_logger("system::topology::Torus2DTopology")
             ->info("ring of node 0, id: {} dimension: {} total nodes in ring: "
                    "{} index in ring: {} offset: {} total nodes in ring: {}",
                    id, name, total_nodes_in_ring, index_in_ring, offset,
@@ -92,18 +92,18 @@ RingTopology::RingTopology(Dimension dimension,
     index_to_id[index_in_ring] = id;
     int tmp = id;
     for (int i = 0; i < total_nodes_in_ring - 1; i++) {
-        tmp = get_receiver_homogeneous(tmp, RingTopology::Direction::Clockwise,
+        tmp = get_receiver_homogeneous(tmp, Torus2DTopology::Direction::Clockwise,
                                        offset);
     }
 }
 
 
-int RingTopology::get_receiver_homogeneous(int node_id,
+int Torus2DTopology::get_receiver_homogeneous(int node_id,
                                            Direction direction,
                                            int offset) {
     assert(id_to_index.find(node_id) != id_to_index.end());
     int index = id_to_index[node_id];
-    if (direction == RingTopology::Direction::Clockwise) {
+    if (direction == Torus2DTopology::Direction::Clockwise) {
         int receiver = node_id + offset;
         if (index == total_nodes_in_ring - 1) {
             receiver -= (total_nodes_in_ring * offset);
@@ -112,7 +112,7 @@ int RingTopology::get_receiver_homogeneous(int node_id,
             index++;
         }
         if (receiver < 0) {
-            LoggerFactory::get_logger("system::topology::RingTopology")
+            LoggerFactory::get_logger("system::topology::Torus2DTopology")
                 ->critical("at dim: {} at id: {} dimension: {} index: {}, node "
                            "id: {}, offset: {}, index_in_ring {} receiver {}",
                            name, id, name, index, node_id, offset,
@@ -131,7 +131,7 @@ int RingTopology::get_receiver_homogeneous(int node_id,
             index--;
         }
         if (receiver < 0) {
-            LoggerFactory::get_logger("system::topology::RingTopology")
+            LoggerFactory::get_logger("system::topology::Torus2DTopology")
                 ->critical("at dim: {} at id: {} dimension: {} index: {}, node "
                            "id: {}, offset: {}, index_in_ring {} receiver {}",
                            name, id, name, index, node_id, offset,
@@ -144,25 +144,9 @@ int RingTopology::get_receiver_homogeneous(int node_id,
     }
 }
 
-int RingTopology::get_receiver(int node_id, Direction direction) {
-    assert(id_to_index.find(node_id) != id_to_index.end());
-    int index = id_to_index[node_id];
-    if (direction == RingTopology::Direction::Clockwise) {
-        index++;
-        if (index == total_nodes_in_ring) {
-            index = 0;
-        }
-        return index_to_id[index];
-    } else {
-        index--;
-        if (index < 0) {
-            index = total_nodes_in_ring - 1;
-        }
-        return index_to_id[index];
-    }
-}
 
-std::vector<int> RingTopology::get_receivers(int node_id, RingTopology::Direction direction) const {
+
+std::vector<int> Torus2DTopology::get_receivers(int node_id, Torus2DTopology::Direction direction) const {
     assert(id_to_index.find(node_id) != id_to_index.end());
     int index = id_to_index.at(node_id);
 
@@ -172,7 +156,7 @@ std::vector<int> RingTopology::get_receivers(int node_id, RingTopology::Directio
     if (dims.empty() || dims.size() == 1) {
         int n = total_nodes_in_ring;
         if (n <= 1) return receivers;
-        if (direction == RingTopology::Direction::Clockwise) {
+        if (direction == Torus2DTopology::Direction::Clockwise) {
             int cw_index = (index + 1) % n;
             receivers.push_back(index_to_id.at(cw_index));
         } else {
@@ -192,7 +176,7 @@ std::vector<int> RingTopology::get_receivers(int node_id, RingTopology::Directio
         tmp /= dims[d];
     }
 
-    if (direction == RingTopology::Direction::Clockwise) {
+    if (direction == Torus2DTopology::Direction::Clockwise) {
         // Clockwise => +1 along each dimension
         for (int d = 0; d < num_dims; ++d) {
             std::vector<int> new_coords = coords;
@@ -221,26 +205,7 @@ std::vector<int> RingTopology::get_receivers(int node_id, RingTopology::Directio
 
 
 
-
-int RingTopology::get_sender(int node_id, Direction direction) {
-    assert(id_to_index.find(node_id) != id_to_index.end());
-    int index = id_to_index[node_id];
-    if (direction == RingTopology::Direction::Anticlockwise) {
-        index++;
-        if (index == total_nodes_in_ring) {
-            index = 0;
-        }
-        return index_to_id[index];
-    } else {
-        index--;
-        if (index < 0) {
-            index = total_nodes_in_ring - 1;
-        }
-        return index_to_id[index];
-    }
-}
-
-std::vector<int> RingTopology::get_senders(int node_id, RingTopology::Direction direction) const {
+std::vector<int> Torus2DTopology::get_senders(int node_id, Torus2DTopology::Direction direction) const {
     assert(id_to_index.find(node_id) != id_to_index.end());
     int index = id_to_index.at(node_id);
 
@@ -250,7 +215,7 @@ std::vector<int> RingTopology::get_senders(int node_id, RingTopology::Direction 
     if (dims.empty() || dims.size() == 1) {
         int n = total_nodes_in_ring;
         if (n <= 1) return receivers;
-        if (direction == RingTopology::Direction::Anticlockwise) {
+        if (direction == Torus2DTopology::Direction::Anticlockwise) {
             int cw_index = (index + 1) % n;
             receivers.push_back(index_to_id.at(cw_index));
         } else {
@@ -270,7 +235,7 @@ std::vector<int> RingTopology::get_senders(int node_id, RingTopology::Direction 
         tmp /= dims[d];
     }
 
-    if (direction == RingTopology::Direction::Anticlockwise) {
+    if (direction == Torus2DTopology::Direction::Anticlockwise) {
         // Clockwise => +1 along each dimension
         for (int d = 0; d < num_dims; ++d) {
             std::vector<int> new_coords = coords;
@@ -298,23 +263,23 @@ std::vector<int> RingTopology::get_senders(int node_id, RingTopology::Direction 
 }
 
 
-int RingTopology::get_index_in_ring() {
+int Torus2DTopology::get_index_in_ring() {
     return index_in_ring;
 }
 
-RingTopology::Dimension RingTopology::get_dimension() {
+Torus2DTopology::Dimension Torus2DTopology::get_dimension() {
     return dimension;
 }
 
-int RingTopology::get_num_of_nodes_in_dimension(int dimension) {
+int Torus2DTopology::get_num_of_nodes_in_dimension(int dimension) {
     return get_nodes_in_ring();
 }
 
-int RingTopology::get_nodes_in_ring() {
+int Torus2DTopology::get_nodes_in_ring() {
     return total_nodes_in_ring;
 }
 
-bool RingTopology::is_enabled() {
+bool Torus2DTopology::is_enabled() {
     assert(offset > 0);
     int tmp_index = index_in_ring;
     int tmp_id = id;

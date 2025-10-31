@@ -12,7 +12,7 @@ namespace AstraSim {
 
 class BasicLogicalTopology : public LogicalTopology {
   public:
-    enum class BasicTopology { Ring = 0, BinaryTree, Mesh, HyperCube };
+    enum class BasicTopology { Ring = 0, BinaryTree, Mesh, HyperCube, Torus2D };
 
     BasicLogicalTopology(BasicTopology basic_topology) {
         this->basic_topology = basic_topology;

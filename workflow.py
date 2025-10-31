@@ -38,7 +38,7 @@ class NetworkBackendType(Enum):
 
 PARALLELISM_TYPE: ParallelismType = ParallelismType.RC
 COMMUNICATION_TYPE: ParallelType = ParallelType.MODEL
-NETWORK_BACKEND_TYPE: NetworkBackendType = NetworkBackendType.ANALYTICAL
+NETWORK_BACKEND_TYPE: NetworkBackendType = NetworkBackendType.NS3
 
 class DeepFlowRunner:
     def __init__(self, rundir="DeepFlow"):
@@ -284,7 +284,7 @@ class AstraSimRunner:
         if NETWORK_BACKEND_TYPE == NetworkBackendType.ANALYTICAL:
             return ""
         elif NETWORK_BACKEND_TYPE == NetworkBackendType.NS3:
-            return os.path.join(self.project_dir, "examples", "ns3", "sample_8nodes_1D.json")
+            return os.path.join(self.project_dir, "examples", "ns3", "sample_16nodes_2D.json")
         elif NETWORK_BACKEND_TYPE == NetworkBackendType.GARNET:
             sys.exit("[Error] Garnet backend is not supported yet.")
         else:
@@ -397,9 +397,9 @@ class AstraSimRunner:
                 print(f"[ASTRA-sim] Exited with code {process.returncode}")
 
     def run_all(self):
-        self.compile_astrasim()
+        # self.compile_astrasim()
         # self.install_chakra()                  #uncomment if you want to install
-        # self.convert_text_to_chakra()
+        self.convert_text_to_chakra()
         self.run_astrasim()
 
 

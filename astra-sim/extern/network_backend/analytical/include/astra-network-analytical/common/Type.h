@@ -41,7 +41,10 @@ enum class TopologyBuildingBlock {
     BinaryTree,
     DoubleBinaryTree,
     Mesh,
-    HyperCube
+    HyperCube,
+    Torus2D,
+    Mesh2D,
+    KingMesh2D
 };
 
 /// Multi-dimensional address of a device.

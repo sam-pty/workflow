@@ -10,6 +10,9 @@ LICENSE file in the root directory of this source tree.
 #include "congestion_aware/Mesh.h"
 #include "congestion_aware/MultiDimTopology.h"
 #include "congestion_aware/Ring.h"
+#include "congestion_aware/Torus2D.h"
+#include "congestion_aware/Mesh2D.h"
+#include "congestion_aware/KingMesh2D.h"
 #include "congestion_aware/Switch.h"
 #include <cstdlib>
 #include <iostream>
@@ -47,6 +50,12 @@ std::shared_ptr<Topology> NetworkAnalyticalCongestionAware::construct_topology(
             return std::make_shared<DoubleBinaryTree>(npus_count, bandwidth, latency);
         case TopologyBuildingBlock::Mesh:
             return std::make_shared<Mesh>(npus_count, bandwidth, latency);
+        case TopologyBuildingBlock::Torus2D:
+            return std::make_shared<Torus2D>(npus_count, bandwidth, latency);
+        case TopologyBuildingBlock::Mesh2D:
+            return std::make_shared<Mesh2D>(npus_count, bandwidth, latency);
+        case TopologyBuildingBlock::KingMesh2D:
+            return std::make_shared<KingMesh2D>(npus_count, bandwidth, latency);
         default:
             // shouldn't reaach here
             std::cerr << "[Error] (network/analytical/congestion_aware) "
@@ -87,6 +96,13 @@ std::shared_ptr<Topology> NetworkAnalyticalCongestionAware::construct_topology(
             case TopologyBuildingBlock::Mesh:
                 dim_topology = std::make_unique<Mesh>(npus_count, bandwidth, latency, is_multi_dim);
                 break;
+            case TopologyBuildingBlock::Torus2D:
+                dim_topology = std::make_unique<Torus2D>(npus_count, bandwidth, latency, is_multi_dim);
+                break;
+            case TopologyBuildingBlock::Mesh2D:
+                dim_topology = std::make_unique<Mesh2D>(npus_count, bandwidth, latency, is_multi_dim);
+                break;
+
             default:
                 // shouldn't reach here
                 std::cerr << "[Error] (network/analytical/congestion_aware)"

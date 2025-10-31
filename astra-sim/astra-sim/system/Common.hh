@@ -61,6 +61,7 @@ enum class CollectiveImplType {
     LocalRingNodeA2AGlobalDBT,
     HierarchicalRing,
     DoubleBinaryTree,
+    Torus2D,
     HalvingDoubling,
     OneHalvingDoubling,
     ChakraImpl,
