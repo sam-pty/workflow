@@ -45,6 +45,21 @@ docker run --gpus all -it --rm --shm-size=32g \
 ## Output
 The script streams training logs and parses step timing to display tokens/sec and tokens/sec/GPU in real time.
 
+## Benchmark Results
+Tested on NeMo 24.07, 4×A100 GPUs, Llama-2-7B, bf16, 4096 sequence length, 128 global batch size, 1 micro batch size.
+
+| Parallelism (TP, PP, CP, DP) | Step Time (s) | Token/Sec/GPU | Throughput (token/s) |
+|------------------------------|---------------|---------------|----------------------|
+| TP=1, PP=1, CP=1, DP=4       | 36.90         | 3,552         | 14,208               |
+| TP=2, PP=1, CP=1, DP=2       | 41.70         | 3,143         | 12,573               |
+| TP=1, PP=2, CP=1, DP=2       | 38.20         | 3,431         | 13,725               |
+| TP=1, PP=1, CP=2, DP=2       | 42.90         | 3,055         | 12,221               |
+
+**Token/Sec/GPU is calculated as:**
+```
+Token/Sec/GPU = (global_batch_size * seq_len) / (step_time * GPUs)
+```
+
 ## Notes
 - Ensure your system has enough GPU memory for the chosen batch and sequence sizes.
 - For real training, replace synthetic data settings with your dataset.
