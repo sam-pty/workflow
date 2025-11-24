@@ -6,7 +6,9 @@ from accelerate import Accelerator
 from accelerate.state import AcceleratorState
 
 # --- Constants ---
-MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
+# MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
+# MODEL_NAME = "meta-llama/Llama-3.1-8B"
+MODEL_NAME = "unsloth/llama-2-7b"
 WARMUP_STEPS = 5
 TIMED_STEPS = 10
 
