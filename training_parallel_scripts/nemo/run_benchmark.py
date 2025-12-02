@@ -13,15 +13,18 @@ MICRO_BATCH_SIZE = 1     # Start with 1 to avoid OOM, increase if memory allows
 # Parallelism Configuration (4 GPUs Total)
 # Ensure TP * PP * CP <= Number of GPUs (4)
 TP_SIZE = 1   # Tensor Parallelism, better for a larger models
-PP_SIZE = 1   # Pipeline Parallelism, better when bubble time to compute ratio is not poor (many GPUs with fast lainks) or batch size is large
-CP_SIZE = 2   # Context Parallelism, better for long sequences
+PP_SIZE = 1   # Pipeline Parallelism, better when bubble time to compute ratio is not poor (many GPUs with fast links) or batch size is large
+CP_SIZE = 1   # Context Parallelism, better for long sequences
 # DP_SIZE is calculated automatically: NUM_GPUS / (TP * PP * CP)
+
+# Data Parallelism Type
+USE_FSDP = False  # Set to True for FSDP, False for DDP (default)
 
 # Experiment Settings
 # MAX_STEPS = 50           # Run enough steps to stabilize throughput
 MAX_STEPS = 20          
 NUM_GPUS = 4
-PRECISION = "bf16-mixed" # A100s should use bf16
+PRECISION = "bf16"  # A100s should use bf16; other options: "bf16-mixed", "fp16-mixed", "fp32", "16-mixed", "32-true"
 
 # ==========================================
 #  AUTOMATED COMMAND BUILDER
@@ -53,6 +56,7 @@ def run_experiment():
     # NeMo calculates this internally, we just print it for sanity check
     grad_acc_steps = GLOBAL_BATCH_SIZE / (MICRO_BATCH_SIZE * dp_size)
 
+    dp_type = "FSDP" if USE_FSDP else "DDP"
     print(f"""
     Starting Experiment...
     ------------------------------------------
@@ -60,7 +64,7 @@ def run_experiment():
     Sequence Len: {SEQ_LEN}
     Micro Batch : {MICRO_BATCH_SIZE}
     ------------------------------------------
-    Parallelism : TP={TP_SIZE}, PP={PP_SIZE}, CP={CP_SIZE}, DP={int(dp_size)}
+    Parallelism : TP={TP_SIZE}, PP={PP_SIZE}, CP={CP_SIZE}, DP={int(dp_size)} ({dp_type})
     Internal Acc Steps: {grad_acc_steps} (Managed by NeMo)
     ------------------------------------------
     """)
@@ -91,13 +95,13 @@ def run_experiment():
         
         # --- MEMORY OPTIMIZATIONS (CRITICAL FIXES) ---
         # 1. Distributed Optimizer (Shards optimizer state across DP ranks)
-        "model.optim.name=distributed_fused_adam",
+        # "model.optim.name=distributed_fused_adam",
         
         # 2. Activation Checkpointing (Saves memory by recomputing activations)
         "model.activations_checkpoint_granularity=selective", 
         "model.activations_checkpoint_method=uniform",
         # ---------------------------------------------
-        
+
         # Training Loop
         f"trainer.max_steps={MAX_STEPS}",
         f"trainer.val_check_interval={MAX_STEPS}", # Disable validation during bench
@@ -135,6 +139,16 @@ def run_experiment():
         "++exp_manager.checkpoint_callback_params.save_nemo_on_train_end=False",
 
     ]
+
+    optim_name = "fused_adam" if USE_FSDP else "distributed_fused_adam"
+    cmd.append(f"model.optim.name={optim_name}")
+    
+    # Add FSDP configuration if enabled
+    if USE_FSDP:
+        cmd.extend([
+            "++model.fsdp=True",  # Enable FSDP
+            "++model.fsdp_sharding_strategy=full",  # Options: full, hybrid, grad_op
+        ])
     
     # Run and capture output
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)

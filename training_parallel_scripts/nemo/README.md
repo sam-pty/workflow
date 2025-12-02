@@ -3,7 +3,7 @@
 This script benchmarks the training throughput of the Llama-2-7B model using NVIDIA's NeMo framework. It allows you to configure parallelism strategies and batch sizes to optimize performance on multi-GPU systems.
 
 ## Features
-- Supports Tensor, Pipeline, and Context Parallelism
+- Supports Tensor, Pipeline, Context, DP and Fully Sharded Data Parallelism (FSDP)
 - Configurable batch sizes and sequence length
 - Uses synthetic data for benchmarking
 - Parses and displays tokens/sec throughput per GPU
@@ -39,6 +39,7 @@ docker run --gpus all -it --rm --shm-size=32g \
 - `GLOBAL_BATCH_SIZE`: Total batch size across all GPUs
 - `MICRO_BATCH_SIZE`: Per-GPU micro batch size
 - `TP_SIZE`, `PP_SIZE`, `CP_SIZE`: Parallelism settings
+- `USE_FSDP`: Boolean flag to enable Fully Sharded Data Parallel (FSDP) instead of TP/PP/CP; when True, uses automatic sharding for memory efficiency, or else uses standard DDP.
 - `NUM_GPUS`: Number of GPUs to use
 - `PRECISION`: Training precision (e.g., bf16-mixed)
 
