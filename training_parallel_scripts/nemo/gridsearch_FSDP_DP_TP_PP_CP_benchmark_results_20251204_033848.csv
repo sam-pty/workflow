@@ -1,0 +1,5 @@
+TP,PP,CP,DP,Status,Error,Avg_Step_Time_s,Total_Throughput_tokens_s,Throughput_per_GPU_tokens_s
+1,1,1,4,SUCCESS,,56.2639,9318.37,2329.59
+2,1,1,2,SUCCESS,,74.1639,7069.32,1767.33
+1,2,1,2,INSUFFICIENT_DATA,AssertionError: FSDP does not support pipeline parallelism,N/A,N/A,N/A
+1,1,2,2,SUCCESS,,104.2222,5030.48,1257.62
