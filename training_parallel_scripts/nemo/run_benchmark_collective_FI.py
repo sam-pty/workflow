@@ -121,7 +121,8 @@ def run_experiment():
         "torchrun",
         f"--nproc_per_node={NUM_GPUS}",
         # "/opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py",
-        "faulty_wrapper.py",
+        # "faulty_wrapper.py",
+        "faulty_wrapper_noiseratio.py",
         "--config-path=/opt/NeMo/examples/nlp/language_modeling/conf",
         
         # Architecture Overrides - Dynamic based on MODEL_TYPE
