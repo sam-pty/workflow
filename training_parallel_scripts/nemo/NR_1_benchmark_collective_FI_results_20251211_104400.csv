@@ -1,0 +1,4 @@
+Model,TP,PP,CP,DP,Status,Error,Avg_Step_Time_s,Total_Throughput_tokens_s,Throughput_per_GPU_tokens_s
+llama2-7b,2,2,1,1,SUCCESS,,43.0278,12184.87,3046.22
+llama2-7b,2,1,1,2,SUCCESS,,42.5389,12324.91,3081.23
+llama2-7b,1,2,1,2,SUCCESS,,38.2278,13714.84,3428.71
