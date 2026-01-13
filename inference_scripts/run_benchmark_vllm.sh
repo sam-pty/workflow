@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# This script now serves as a wrapper that can run either:
+# 1. The original vllm bench throughput command (without TTFT/TPOT)
+# 2. The Python-based latency benchmark (with TTFT/TPOT)
+
+# Uncomment the method you want to use:
+
+# Method 1: Run Python script with accurate TTFT/TPOT measurements
+# python3 "$(dirname "$0")/run_benchmark_vllm_latency.py"
+
+# Method 2: Original vllm bench throughput (uncomment lines below and comment line above)
 # Save original CUDA_VISIBLE_DEVICES
 ORIGINAL_CUDA_DEVICES="${CUDA_VISIBLE_DEVICES:-}"
 
@@ -19,6 +29,7 @@ OUTPUT_LEN=128
 NUM_PROMPTS=10
 DTYPE="bfloat16"
 MAX_MODEL_LEN=2048
+MAX_NUM_SEQS=1
 
 # Function to run benchmark and parse output
 run_benchmark() {
@@ -37,6 +48,7 @@ run_benchmark() {
         --input-len "$INPUT_LEN" \
         --output-len "$OUTPUT_LEN" \
         --num-prompts "$NUM_PROMPTS" \
+        --max-num-seqs "$MAX_NUM_SEQS" \
         --dtype "$DTYPE" \
         --max-model-len "$MAX_MODEL_LEN" 2>&1)
     
