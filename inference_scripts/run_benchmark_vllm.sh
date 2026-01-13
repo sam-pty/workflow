@@ -7,7 +7,7 @@
 # Uncomment the method you want to use:
 
 # Method 1: Run Python script with accurate TTFT/TPOT measurements
-# python3 "$(dirname "$0")/run_benchmark_vllm_latency.py"
+python3 "$(dirname "$0")/run_benchmark_vllm_latency.py"
 
 # Method 2: Original vllm bench throughput (uncomment lines below and comment line above)
 # Save original CUDA_VISIBLE_DEVICES
