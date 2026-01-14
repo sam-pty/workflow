@@ -36,50 +36,60 @@ def measure_latency(
         gpu_memory_utilization=0.9
     )
     
-    # Sampling parameters
-    sampling_params = SamplingParams(
+    # Warmup
+    print("Warming up...")
+    sampling_params_warmup = SamplingParams(
+        temperature=0.0,
+        max_tokens=output_len,
+        ignore_eos=True
+    )
+    _ = llm.generate([prompt], sampling_params_warmup)
+    
+    # Measure TTFT: Generate only 1 token to isolate prefill + first decode
+    print(f"Measuring TTFT (prefill + first token)...")
+    ttft_list = []
+    sampling_params_ttft = SamplingParams(
+        temperature=0.0,
+        max_tokens=1,  # Only generate first token
+        ignore_eos=True
+    )
+    
+    for i in range(num_prompts):
+        start_time = time.perf_counter()
+        _ = llm.generate([prompt], sampling_params_ttft)
+        end_time = time.perf_counter()
+        
+        ttft = (end_time - start_time) * 1000  # Convert to ms
+        ttft_list.append(ttft)
+        print(f"  TTFT iteration {i+1}/{num_prompts}: {ttft:.2f}ms")
+    
+    # Measure TPOT: Generate full sequence and calculate incremental time
+    print(f"Measuring TPOT (time per output token after first)...")
+    tpot_list = []
+    sampling_params_full = SamplingParams(
         temperature=0.0,
         max_tokens=output_len,
         ignore_eos=True
     )
     
-    # Warmup
-    print("Warming up...")
-    _ = llm.generate([prompt], sampling_params)
-    
-    # Actual measurements
-    print(f"Running {num_prompts} benchmark iterations...")
-    ttft_list = []
-    tpot_list = []
-    
     for i in range(num_prompts):
         start_time = time.perf_counter()
-        
-        # Track first token time
-        first_token_time = None
-        outputs = llm.generate([prompt], sampling_params)
-        
+        outputs = llm.generate([prompt], sampling_params_full)
         end_time = time.perf_counter()
-        total_time = end_time - start_time
         
-        # Extract timing information
-        output = outputs[0]
-        num_output_tokens = len(output.outputs[0].token_ids)
+        total_time = (end_time - start_time) * 1000  # ms
+        num_output_tokens = len(outputs[0].outputs[0].token_ids)
         
-        # TTFT approximation: assume uniform token generation if not available
-        # For more accurate TTFT, we need streaming or custom callback
-        estimated_ttft = total_time / (num_output_tokens + 1) if num_output_tokens > 0 else total_time
-        
-        # TPOT: time per output token (excluding first token)
+        # TPOT = (total_time - avg_ttft) / (num_tokens - 1)
+        # This approximates the decode phase time per token
         if num_output_tokens > 1:
-            tpot = (total_time - estimated_ttft) / (num_output_tokens - 1)
+            avg_ttft = sum(ttft_list) / len(ttft_list)
+            tpot = (total_time - avg_ttft) / (num_output_tokens - 1)
         else:
-            tpot = total_time / max(num_output_tokens, 1)
+            tpot = 0
         
-        ttft_list.append(estimated_ttft * 1000)  # Convert to ms
-        tpot_list.append(tpot * 1000)  # Convert to ms
-        
-        print(f"  Iteration {i+1}/{num_prompts}: TTFT={estimated_ttft*1000:.2f}ms, TPOT={tpot*1000:.2f}ms")
+        tpot_list.append(tpot)
+        print(f"  TPOT iteration {i+1}/{num_prompts}: {tpot:.2f}ms")
     
     # Calculate averages
     avg_ttft = sum(ttft_list) / len(ttft_list)
